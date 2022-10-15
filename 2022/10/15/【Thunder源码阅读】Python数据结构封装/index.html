@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+<title>【Thunder源码阅读】Python数据结构封装-LBT</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" type="image/x-icon" href="/image/ml.svg">
+
+<link rel="stylesheet" href="/css/index.css">
+
+
+
+<meta name="keywords" content="CUDA,C++,">
+<meta name="description" content="">
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+<script src="/js/index.js"></script>
+
+
+<script src="/js/fancybox.umd.js"></script>
+
+
+<script src="/js/fancybox-images.js"></script>
+
+
+<script src="/js/gitalk.min.js"></script>
+
+
+<script src="/js/hljs.min.js"></script>
+ 
+<script>hljs.highlightAll();</script>
+
+	<meta name="generator" content="Hexo 6.3.0"></head>
+
+	<body>
+		
+	<div class="header">
+		<div class="header-top" id="header-top">
+			<div class="h-left">
+				<a href="/">
+					<img src="/image/ml.svg" alt="Quiet">
+				</a>
+			</div>
+			<div class="h-right">
+				<ul>
+					
+						
+								<li>
+									<a href="/">
+										HOME
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/archives">
+										ARCHIVE
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/categories">
+										CATEGORIES
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/tags">
+										TAGS
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/links">
+										LINKS
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+						
+								<li>
+									<a href="/about">
+										ABOUT
+									</a>
+									<span class="dot"></span>
+								</li>
+								
+									
+				</ul>
+			</div>
+			<div class="h-right-close">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+					<path fill="none" d="M0 0h24v24H0z" />
+					<path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" fill="rgba(68,68,68,1)" />
+				</svg>
+			</div>
+		</div>
+	</div>
+	<div class="sidebar">
+    <div class="topo">
+        <h2>Melrose</h2>
+    </div>
+    <ul>
+        
+        <li>
+            <a href="/">HOME</a>
+        </li>
+        
+        <li>
+            <a href="/archives">ARCHIVE</a>
+        </li>
+        
+        <li>
+            <a href="/categories">CATEGORIES</a>
+        </li>
+        
+        <li>
+            <a href="/tags">TAGS</a>
+        </li>
+        
+        <li>
+            <a href="/links">LINKS</a>
+        </li>
+        
+        <li>
+            <a href="/about">ABOUT</a>
+        </li>
+        
+    </ul>
+    <div class="my_foot">
+        
+        <a target="_blank" rel="noopener" href="https://github.com/Melrose-Lbt">
+            <img src="/image/github-fill.png" alt="Quiet主题">
+        </a>
+        
+    </div>
+</div>
+<div class='shelter'>
+</div>
+<style>
+    .shelter{
+        background-color: #333;
+        opacity:0.5;
+        cursor: pointer;
+        display: none; 
+        position: fixed;
+        left: 0;
+        top: 0; 
+        right: 0;
+        bottom: 0;
+        z-index: 1998;
+    }
+    .sidebar {
+        width: 66%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        right: -100%;
+        bottom: 0;
+        background: #fff;
+        z-index: 1999;
+        text-align: center;
+        box-shadow: -6px 0 20px rgba(98, 94, 94, .815);
+    }
+
+    .topo {
+        width: 100%;
+        height: 200px;
+        background: url(https://api.ixiaowai.cn/gqapi/gqapi.php) no-repeat;
+        background-size: 100% 100%;
+        position: relative;
+        display: flex;
+        align-items: flex-end
+    }
+
+    .topo h2 {
+        color: #fff;
+        z-index: 1;
+        position: relative;
+        margin: 0 0 10px 10px;
+        font-size: 1.2em;
+        box-sizing: border-box
+    }
+
+    .topo:before {
+        content: '';
+        background-image: url(/image/pattern.png);
+        background-repeat: repeat;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 1
+    }
+
+    .sidebar ul {
+        width: 100%;
+        margin-top: 50px
+    }
+
+    .sidebar ul li {
+        height: 50px;
+        list-style: none;
+        font-size: 1.2em;
+        text-align: right;
+        margin-right: 10px
+    }
+
+    .sidebar ul li a {
+        display: grid;
+        color: #5d606a;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-decoration: none
+    }
+
+    .my_foot {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        position: absolute;
+        bottom: 0
+    }
+
+    .my_foot a {
+        text-decoration: none;
+        margin-right: 10px;
+        display: inline-block
+    }
+
+    .my_foot a img {
+        width: 30px;
+        height: 30px
+    }
+</style>
+
+<script>
+    $( function () {
+	$( '.h-right-close>svg' )
+		.click( function () {
+			$( '.sidebar' )
+				.animate( {
+					right: "0"
+				}, 500 );
+			$( '.shelter' )
+				.fadeIn( "slow" )
+		} );
+	$( '.shelter' )
+		.click( function ( e ) {
+			$( '.sidebar' )
+				.animate( {
+					right: "-100%"
+				}, 500 );
+			$( '.shelter' )
+				.fadeOut( "slow" )
+		} )
+} )
+
+</script>
+
+<div class="post">
+    <div class="post-header-background post-header-img"
+    style="background: url('https://api.ixiaowai.cn/gqapi/gqapi.php')" 
+>
+    <div class="post-header-background-content">
+        <ul class="post-header-tag">
+            
+            
+            <li><a href="/tags/CUDA">CUDA</a></li>
+            
+            <li><a href="/tags/C++">C++</a></li>
+            
+            
+        </ul>
+        
+        <h1>【Thunder源码阅读】Python数据结构封装</h1>
+        <div class="post-header-info">
+            <div class="post-header-info-author">
+                
+                    <svg t="1604839279282" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="2901" width="20" height="20">
+                        <path
+                            d="M513 956.3c-247.7 0-448-200.3-448-448S265.3 66.2 513 66.2s448 200.3 448 448-200.3 442.1-448 442.1z m0-830.9c-212.2 0-388.8 170.7-388.8 388.8C124.2 726.3 294.9 903 513 903c212.2 0 388.8-170.7 388.8-388.8S725.2 125.4 513 125.4z m0 430.2c-94.2 0-170.7-76.5-170.7-170.7S418.8 207.8 513 207.8s170.7 76.5 170.7 170.7S607.2 555.6 513 555.6z m0-289.1c-64.6 0-112 52.8-112 112s47.4 117.9 112 117.9 112-52.8 112-112-47.4-117.9-112-117.9z m0 689.8c-135.7 0-259-58.7-341.9-158.9l-11.8-17.8 11.8-17.8c76.5-117.9 206.2-188.5 347.8-188.5 135.7 0 265 64.6 341.9 182.6l11.8 17.8-11.8 17.8C778 897.1 648.7 956.3 513 956.3zM230.3 773.2C300.9 849.7 406.9 897 513 897c112 0 218.1-47.4 288.6-129.8-70.5-88.2-170.7-135.6-282.7-135.6s-218.1 53.3-288.6 141.6z"
+                            p-id="2902" fill="#ffffff"></path>
+                    </svg>
+                    
+                <span class="post-header-info-author-text"> <a href="../../about">Melrose</a></span>
+                <div class="post-header-info-author-categories">
+                    
+                         <a href="../../categories/Source-Code-Reading-Note/" target="_blank" >Source Code Reading Note</a>
+                    
+                </div>
+                <p>2022-10-15 10:06:22</p>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="post-content" id="content">
+  
+  <div id="article" class="post-content-info">
+    
+
+    <h1 id="Python-数据结构封装"><a href="#Python-数据结构封装" class="headerlink" title="Python 数据结构封装"></a>Python 数据结构封装</h1><blockquote>
+<p>ndarray文件夹实现了python与[[C运行时接口]]的对接。这一块的数据结构是专门用来实现GPU数据的进一步封装的。<br>_base 文件是用来加载动态连结库的，并提供了一些实用的小函数。<br>gpu_op是对CUDA内核的进一步封装。<br>ndarray则是对DLArray的进一步封装。<br>前两个文件的思路较为简单，这里直接对ndarray文件进行分析。</p>
+</blockquote>
+<h2 id="ndarray-py源码极其分析"><a href="#ndarray-py源码极其分析" class="headerlink" title="ndarray.py源码极其分析"></a>ndarray.py源码极其分析</h2><pre><code class="python">from __future__ import absolute_import
+from ._base import _LIB, check_call, c_array
+from . import ndarray as _nd
+
+import ctypes
+import numpy as np
+
+class DLContext(ctypes.Structure):
+
+    _fields_ = [(&quot;device_id&quot;, ctypes.c_int),
+    (&quot;device_type&quot;, ctypes.c_int)]
+    
+    MASK2STR = &#123;
+    1: &#39;cpu&#39;,
+    2: &#39;gpu&#39;,
+    &#125;
+      
+    
+    def __init__(self, device_id, device_type):
+        super(DLContext, self).__init__()
+        self.device_id = device_id
+        self.device_type = device_type
+    
+    
+    def __repr__(self):
+        return &quot;%s(%d)&quot; % (DLContext.MASK2STR[self.device_type], self.device_id)
+</code></pre>
+<p>这里实现的是对DLContext的封装，这是ctype所必须的操作。</p>
+<pre><code class="python">class DLArray(ctypes.Structure):
+
+    _fields_ = [(&quot;data&quot;, ctypes.c_void_p),
+    
+    (&quot;ctx&quot;, DLContext),
+    
+    (&quot;ndim&quot;, ctypes.c_int),
+    
+    (&quot;shape&quot;, ctypes.POINTER(ctypes.c_int64))]
+
+# 指针类型
+
+DLArrayHandle = ctypes.POINTER(DLArray)
+
+def cpu(dev_id=0):
+
+    return DLContext(dev_id, 1)
+
+def gpu(dev_id=0):
+
+    return DLContext(dev_id, 2)
+
+def is_gpu_ctx(ctx):
+
+    return ctx and ctx.device_type == 2
+</code></pre>
+<p>对DLArray的封装，并提供了指针和一些小函数。</p>
+<pre><code class="python">def array(arr, ctx=cpu(0)):
+
+    if not isinstance(arr, np.ndarray):
+    
+    arr = np.array(arr)
+    
+    ret = empty(arr.shape, ctx)
+    
+    ret._sync_copyfrom(arr)
+    
+    return ret
+
+  
+  
+
+def empty(shape, ctx=cpu(0)):
+
+    shape = c_array(ctypes.c_int64, shape)
+    
+    ndim = ctypes.c_int(len(shape))
+    
+    handle = DLArrayHandle()
+    
+    check_call(_LIB.DLArrayAlloc(
+    
+    shape, ndim, ctx, ctypes.byref(handle)))
+    
+    return NDArray(handle)
+
+  
+  
+
+def reshape(arr, new_shape):
+
+    assert isinstance(arr, _nd.NDArray)
+    
+    shape = c_array(ctypes.c_int64, new_shape)
+    
+    new_dim = len(new_shape)
+    
+    handle = arr.handle
+    
+    check_call(_LIB.DLArrayReshape(handle, shape, new_dim))
+</code></pre>
+<p>empty函数根据shape，会在cpu上创建一个DLArray，分配对应的内存空间，并返回。<br>array则是将非numpy array类型的数据转换为numpy。<br>reshape则调用LIB中的函数，改变数据的形状。</p>
+<pre><code class="python">class NDArray(object):
+    __slots__ = [&#39;handle&#39;]
+      
+    def __init__(self, handle):
+        self.handle = handle
+      
+    
+    def __del__(self):
+        check_call(_LIB.DLArrayFree(self.handle))
+    
+      
+    @property
+    def shape(self):
+        return tuple(self.handle.contents.shape[i]
+                        for i in range(self.handle.contents.ndim))
+      
+    @property
+    def ctx(self):
+        return self.handle.contents.ctx
+    
+      
+    
+    def __setitem__(self, in_slice, value):
+        &quot;&quot;&quot;Set ndarray value&quot;&quot;&quot;
+        if (not isinstance(in_slice, slice) or
+                                    in_slice.start is not None
+                                    or in_slice.stop is not None):
+            raise ValueError(&#39;Array only support set from numpy array&#39;)
+        if isinstance(value, NDArray):
+            if value.handle is not self.handle:
+                value.copyto(self)
+        elif isinstance(value, (np.ndarray, np.generic)):
+            self._sync_copyfrom(value)
+        else:
+            raise TypeError(&#39;type %s not supported&#39; % str(type(value)))
+    
+      
+    
+    def _sync_copyfrom(self, source_array):
+        if not isinstance(source_array, np.ndarray):
+            try:
+                source_array = np.array(source_array, dtype=np.float32)
+            except:
+                raise TypeError(&#39;array must be an array_like data,&#39; +
+        &#39;type %s is not supported&#39;
+                            % str(type(source_array)))
+        source_array = np.ascontiguousarray(source_array, dtype=np.float32)
+        if source_array.shape != self.shape:
+            raise ValueError(&#39;array shape do not match the shape of NDArray&#39;)
+        source_arr, shape = NDArray._numpyasarray(source_array)
+        check_call(_LIB.DLArrayCopyFromTo(
+                        ctypes.byref(source_arr), self.handle, None))
+        # de-allocate shape until now
+        _ = shape
+    
+      
+    
+    @staticmethod
+    
+    def _numpyasarray(np_data):
+        data = np_data
+        assert data.flags[&#39;C_CONTIGUOUS&#39;]
+        arr = DLArray()
+        shape = c_array(ctypes.c_int64, data.shape)
+        arr.data = data.ctypes.data_as(ctypes.c_void_p)
+        arr.shape = shape
+        arr.ndim = data.ndim
+        arr.ctx = cpu(0)
+        return arr, shape
+    
+      
+    
+    def asnumpy(self):
+        np_arr = np.empty(self.shape, dtype=np.float32)
+        arr, shape = NDArray._numpyasarray(np_arr)
+        check_call(_LIB.DLArrayCopyFromTo(
+        self.handle, ctypes.byref(arr), None))
+        _ = shape
+        return np_arr
+    
+      
+    
+    def copyto(self, target):
+        if isinstance(target, DLContext):
+            target = empty(self.shape, target)
+        if isinstance(target, NDArray):
+            check_call(_LIB.DLArrayCopyFromTo(
+                    self.handle, target.handle, None))
+        else:
+            raise ValueError(&quot;Unsupported target type %s&quot; % str(type(target)))
+        return target
+</code></pre>
+
+  </div>
+  <div id=""></div>
+</div>
+
+<script>
+  
+Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
+  dragToClose: true,
+  Toolbar: true,
+  closeButton: "top",
+  Image: {
+    zoom: true,
+  },
+  on: {
+    initCarousel: (fancybox) => {
+      const slide = fancybox.Carousel.slides[fancybox.Carousel.page];
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+    "Carousel.change": (fancybox, carousel, to, from) => {
+      const slide = carousel.slides[to];
+      fancybox.$container.style.setProperty(
+        "--bg-image",
+        `url("${slide.$thumb.src}")`
+      );
+    },
+  },
+});
+</script>
+
+<style>
+    #noneimg img {
+        display: none;
+        z-index: 9999;
+        /* width: 600px !important; */
+        min-width: 0%;
+        max-width: 90%;
+        max-height: 80%;
+        border-radius: 0px;
+        position: fixed;
+        box-shadow: 0 0 0px #c3c3c300 !important;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto !important;
+    }
+
+    @media screen and (max-width:600px) {
+        #noneimg img {
+            max-width: 88%
+        }
+    }
+</style>
+
+    <div class="post-paging">
+    
+    <a href="/2022/10/15/%E3%80%90%E5%8A%A8%E6%89%8B%E5%BC%80%E5%8F%91%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6%E6%97%A5%E8%AE%B0%E3%80%91Tensor%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+        <div class="post-paging-last">
+            <span>上一篇</span>
+            <p>【动手开发深度学习框架日记】Tensor基本数据结构</p>
+        </div>
+    </a>
+    
+
+    
+</div>
+</div>
+		
+<div class="footer">
+	<div class="Copyright">
+		©2022 By Melrose.
+	</div>
+	<div class="contact">
+		
+		<a target="_blank" rel="noopener" href="https://github.com/Melrose-Lbt">
+			<img src="/image/github-fill.png" alt="Quiet主题">
+		</a>
+		
+	</div>
+</div>
+
+<script src="/js/gotop.js"></script>
+
+
+<style type="text/css">
+    @media screen and (min-width: 600px) {
+        .goTop>span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            opacity: 0.8;
+            background: rgba(18, 24, 58, 0.06);
+            text-align: center;
+            transition: border .5s;
+            border: 1px solid rgba(18, 24, 58, 0.06);
+
+            -moz-transition: border .5s;
+            /* Firefox 4 */
+            -webkit-transition: border .5s;
+            /* Safari 和 Chrome */
+            -o-transition: border .5s;
+            /* Opera */
+        }
+
+        .goTop>span:hover {
+            border: 1px solid #6680B3;
+        }
+
+
+        .goTop {
+            position: fixed;
+            right: 30px;
+            bottom: 80px;
+        }
+
+        .goTop>span>svg {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+
+    }
+
+    @media screen and (max-width: 600px) {
+        .goTop {
+            display: none;
+        }
+    }
+</style>
+<div class="goTop" id="js-go_top">
+    <span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <g>
+                <path d="M13 12v8h-2v-8H4l8-8 8 8z"></path>
+            </g>
+        </svg>
+    </span>
+</div>
+<script>
+    $( '#js-go_top' )
+	.gotoTop( {
+		offset: 500,
+		speed: 300,
+		animationShow: {
+			'transform': 'translate(0,0)',
+			'transition': 'transform .5s ease-in-out'
+		},
+		animationHide: {
+			'transform': 'translate(100px,0)',
+			'transition': 'transform .5s ease-in-out'
+		}
+	} );
+</script>
+
+
+    <!-- Gitalk -->
+    <script>
+        const data = '{"clientID":"02b3c","clientSecret":"adfc7b4","repo":"gimment","owner":"duneng","admin":"duneng"}'
+        const gitalk = new Gitalk({
+            ...JSON.parse( data),
+            id:location.pathname,
+            distractionFreeMode:false
+        })
+        
+        if(Boolean('false')){
+            gitalk.render('gitalk-container')
+        }
+    </script>
+
+<script>
+	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
+</script>
+	</body>
+</html>
+
