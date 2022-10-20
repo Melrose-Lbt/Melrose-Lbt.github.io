@@ -350,7 +350,7 @@
     &#125;Quark;
 &#125;
 </code></pre>
-<p>代码定义在 <em>array.h</em> 头文件当中，其中包含float型数据指针；enum类型Device判断是使用CPU计算数据还是GPU；同样是数组指针shape，用于记录张量形状；以及dim记录张量维数。这些是在CUDA程序中十分重要的几个参数。</p>
+<p>代码定义在 _array.h_ 头文件当中，其中包含float型数据指针；enum类型Device判断是使用CPU计算数据还是GPU；同样是数组指针shape，用于记录张量形状；以及dim记录张量维数。这些是在CUDA程序中十分重要的几个参数。</p>
 <p>为了能够使C/C++的API供Python调用，使用了Python内置的ctypes库。那么在Python端，将CUDA/C++编译好的动态链接库文件导入，就可以使用后端的数据结构和API了。关于混合编程以及接口调用的问题，会在另一个文章里记录说明（<strong>未更新</strong>）。</p>
 <p>总之，Quark结构体映射至Python代码中的实现如下：</p>
 <pre><code class="lang-python">class Quark(ctypes.Structure):
