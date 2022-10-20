@@ -354,7 +354,7 @@ p(h_j=1|\vec{v}) = \sigma(b_i + \sum_i v_iw_{ij})</script><p>Where $w_{ij}$ is t
 </center>
 
 <p>We can see <strong>RBM</strong> as a black box. Given an input vector and finally it will output a reconstructed vector. How do we guess the model parameters based on the information that we already know? Well, as we know, we have already understand the fundemental mechanism of the <strong>RBM</strong>. So we know its model, but we don’t know its parameters. Here, the maximum likelihood method can be used as shown in Fig. 2.</p>
-<p>In the <strong>RBM</strong>, we want the output equals to the input. So, the input and label in this case are <__X__, __X__> because <strong>Y</strong>=<strong>X</strong>. Hence, we could derive the equation of $P(\vec{v_{out}})$:</p>
+<p>In the <strong>RBM</strong>, we want the output equals to the input. So, the input and label in this case are (<strong>X</strong>, <strong>X</strong>) because <strong>Y</strong>=<strong>X</strong>. Hence, we could derive the equation of $P(\vec{v_{out}})$:</p>
 <script type="math/tex; mode=display">
 P(\vec{v_{out}})= \sum_hP(\vec{v}, \vec{h})=\frac{\sum_he^{-E(\vec{v_{out},\vec{h}})}}{\sum_{\vec{v},\vec{h}}e^{-E(\vec{v}, \vec{h})}}</script><p>Write it in a log form:</p>
 <script type="math/tex; mode=display">
