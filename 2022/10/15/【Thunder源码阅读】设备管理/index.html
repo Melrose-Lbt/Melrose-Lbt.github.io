@@ -461,7 +461,7 @@ DLContext ctx_from, DLContext ctx_to, DLStreamHandle stream) &#123;
 </code></pre>
 <p>CopyDataFromTo先进行逻辑判断，有四种情况：</p>
 <ol>
-<li>数据的来源和目的地都是GPU<br> 设置GPU设备（cudaSetDevice）。如果是在同一个GPU移动，直接调用GPUCopy。否则调用cudaMemcpyPeerAsync <em>（待完善和学习）</em>。</li>
+<li>数据的来源和目的地都是GPU<br> 设置GPU设备（cudaSetDevice）。如果是在同一个GPU移动，直接调用GPUCopy。否则调用cudaMemcpyPeerAsync _（待完善和学习）_。</li>
 <li>数据来自GPU，目的地是CPU<br> 直接调用GPUcopy。</li>
 <li>数据来自CPU，目的地是GPU<br> 直接调用GPUcopy。</li>
 <li>不允许执行CPU到CPU的，因为这是GPU的设备管理代码<br> 打印错误。</li>
@@ -474,7 +474,7 @@ DLContext ctx_from, DLContext ctx_to, DLStreamHandle stream) &#123;
 
 &#125;
 </code></pre>
-<p><em>（待完善和学习Stream相关的知识）</em>。</p>
+<p>_（待完善和学习Stream相关的知识）_。</p>
 <h2 id="cpu-device-api-cc-amp-cpu-device-api-h"><a href="#cpu-device-api-cc-amp-cpu-device-api-h" class="headerlink" title="cpu_device_api.cc &amp; cpu_device_api.h"></a>cpu_device_api.cc &amp; cpu_device_api.h</h2><ul>
 <li><h4 id="h文件源码-1"><a href="#h文件源码-1" class="headerlink" title="h文件源码"></a>h文件源码</h4><pre><code class="lang-Cpp">namespace dlsys&#123;
 
