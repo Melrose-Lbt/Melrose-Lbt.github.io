@@ -12,7 +12,7 @@
 
 
 
-<meta name="keywords" content="Neutron,CUDA,Deep Learning,">
+<meta name="keywords" content="CUDA,Neutron,Deep Learning,">
 <meta name="description" content="">
 
 
@@ -284,9 +284,9 @@
         <ul class="post-header-tag">
             
             
-            <li><a href="/tags/Neutron">Neutron</a></li>
-            
             <li><a href="/tags/CUDA">CUDA</a></li>
+            
+            <li><a href="/tags/Neutron">Neutron</a></li>
             
             <li><a href="/tags/Deep Learning">Deep Learning</a></li>
             
@@ -333,14 +333,14 @@
 <h1 id="二、内存管理API封装"><a href="#二、内存管理API封装" class="headerlink" title="二、内存管理API封装"></a>二、内存管理API封装</h1><p>上述的步骤其实是可以直接写在C++后端的算子API里的，但是为了Tensor管理的模块化和灵活性，打算将这些功能分散开，在创建GPU数据时完成对应的操作，之后再调用算子就是直接调用GPU内存进行计算了。</p>
 <p>首先创建一个专门定义内存操作的.cu文件，我把它叫 MemSchedulor.cu。</p>
 <p>为了方便筛查错误，我们需要定义一个宏，每当使用CUDA API时，在外面裹一层就好了。</p>
-<pre><code class="cpp">#define CUDA_CHECK(func)                                                        \
+<pre><code class="lang-cpp">#define CUDA_CHECK(func)                                                        \
   &#123;                                                                            \
     cudaError_t e = (func);                                                    \
     assert((e == cudaSuccess) || (e == cudaErrorCudartUnloading));             \
   &#125;
 </code></pre>
 <p>然后我们先封装内存分配函数，这里实现了CPU的封装和GPU的封装。</p>
-<pre><code class="cpp">extern &quot;C&quot; float *AllocateDeviceData(int size)&#123;
+<pre><code class="lang-cpp">extern &quot;C&quot; float *AllocateDeviceData(int size)&#123;
     float *dev_data;
     CUDA_CHECK(cudaMalloc((void **)&amp;dev_data, size));
     return dev_data;
@@ -352,7 +352,7 @@ extern &quot;C&quot; float *AllocateHostData(int size)&#123;
 &#125;
 </code></pre>
 <p>函数内部实现都非常简单，就是创建一个指针变量，分配数据然后返回，在Python端接收即可。需要注意这里输入参数size代表的是字节数，那我们就需要实现一个自动根据shape和dim计算size的函数。</p>
-<pre><code class="cpp">extern &quot;C&quot; inline int getSize(int dim, int *shape)&#123;
+<pre><code class="lang-cpp">extern &quot;C&quot; inline int getSize(int dim, int *shape)&#123;
     // float32 by default, 4 bytes
     int size = 1;
     for(int i=0; i &lt; dim; i++)&#123;
@@ -363,7 +363,7 @@ extern &quot;C&quot; float *AllocateHostData(int size)&#123;
 </code></pre>
 <p>整个框架的数据类型是基于float32的，所以这里要乘4作为数据所占内存的最终大小。</p>
 <p>释放内存的封装也很简单。</p>
-<pre><code class="cpp">extern &quot;C&quot; void FreeDeviceData(float *data)&#123;
+<pre><code class="lang-cpp">extern &quot;C&quot; void FreeDeviceData(float *data)&#123;
     CUDA_CHECK(cudaFree(data));
 &#125;
 
@@ -372,7 +372,7 @@ extern &quot;C&quot; void FreeHostData(float *data)&#123;
 &#125;
 </code></pre>
 <p>最后就是要实现数据的复制功能了，这里统一实现一个API，根据输入的参数来判定移动的方向。</p>
-<pre><code class="cpp">extern &quot;C&quot; void CopyDataFromTo(float *from_data, float *to_data, Device from, Device to, int size)&#123;
+<pre><code class="lang-cpp">extern &quot;C&quot; void CopyDataFromTo(float *from_data, float *to_data, Device from, Device to, int size)&#123;
     if(from == CPU &amp;&amp; to == GPU)&#123;
         CUDA_CHECK(cudaMemcpy(to_data, from_data, size, cudaMemcpyHostToDevice));
     &#125;
@@ -573,6 +573,21 @@ Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
 <script>
 	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 </script>
-	</body>
+	<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 

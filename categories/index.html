@@ -290,10 +290,10 @@
         <div class="categories-content-data">
 				<div class="categories-class">
 					
-						<a class="categories-class-card" href="/categories/Diary/"
+						<a class="categories-class-card" href="/categories/CUDA-Programming/"
 							style="background-image: url('https://api.ixiaowai.cn/gqapi/gqapi.php');"
 						>
-							<span class="categories-class-card-title">Diary</span>
+							<span class="categories-class-card-title">CUDA Programming</span>
 							<div class="categories-class-card-number">
 								<span>
 									<span class="categories-length">1</span> 篇
@@ -301,21 +301,21 @@
 							</div>
 						</a>
 					
-						<a class="categories-class-card" href="/categories/Neutron/"
+						<a class="categories-class-card" href="/categories/Paper-reading-note/"
 							style="background-image: url('https://api.ixiaowai.cn/gqapi/gqapi.php');"
 						>
-							<span class="categories-class-card-title">Neutron</span>
+							<span class="categories-class-card-title">Paper reading note</span>
 							<div class="categories-class-card-number">
 								<span>
-									<span class="categories-length">2</span> 篇
+									<span class="categories-length">1</span> 篇
 								</span>
 							</div>
 						</a>
 					
-						<a class="categories-class-card" href="/categories/CUDA-Programming/"
+						<a class="categories-class-card" href="/categories/Diary/"
 							style="background-image: url('https://api.ixiaowai.cn/gqapi/gqapi.php');"
 						>
-							<span class="categories-class-card-title">CUDA Programming</span>
+							<span class="categories-class-card-title">Diary</span>
 							<div class="categories-class-card-number">
 								<span>
 									<span class="categories-length">1</span> 篇
@@ -330,6 +330,17 @@
 							<div class="categories-class-card-number">
 								<span>
 									<span class="categories-length">4</span> 篇
+								</span>
+							</div>
+						</a>
+					
+						<a class="categories-class-card" href="/categories/Neutron/"
+							style="background-image: url('https://api.ixiaowai.cn/gqapi/gqapi.php');"
+						>
+							<span class="categories-class-card-title">Neutron</span>
+							<div class="categories-class-card-number">
+								<span>
+									<span class="categories-length">2</span> 篇
 								</span>
 							</div>
 						</a>
@@ -447,6 +458,21 @@
 <script>
 	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 </script>
-	</body>
+	<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 

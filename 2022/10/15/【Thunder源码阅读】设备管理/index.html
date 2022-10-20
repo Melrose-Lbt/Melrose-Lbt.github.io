@@ -319,9 +319,9 @@
     
 
     <h1 id="设备管理"><a href="#设备管理" class="headerlink" title="设备管理"></a>设备管理</h1><blockquote>
-<p>在此之前了解一下C++的派生和类的关系，虚函数的定义，纯虚函数的定义，<a target="_blank" rel="noopener" href="https://blog.csdn.net/lj89168/article/details/6623096?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165884267316782184639343%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=165884267316782184639343&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-6623096-null-null.142%5Ev34%5Econtrol,185%5Ev2%5Econtrol&utm_term=virtual%20=0&spm=1018.2226.3001.4187">纯虚函数</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/mayue_web/article/details/88406527?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165884293516782395355104%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=165884293516782395355104&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-88406527-null-null.142%5Ev35%5Econtrol,185%5Ev2%5Econtrol&utm_term=C++%20final&spm=1018.2226.3001.4187">final用法</a>。</p>
+<p>在此之前了解一下C++的派生和类的关系，虚函数的定义，纯虚函数的定义，<a target="_blank" rel="noopener" href="https://blog.csdn.net/lj89168/article/details/6623096?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165884267316782184639343%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165884267316782184639343&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-6623096-null-null.142^v34^control,185^v2^control&amp;utm_term=virtual%20%3D0&amp;spm=1018.2226.3001.4187">纯虚函数</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/mayue_web/article/details/88406527?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165884293516782395355104%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165884293516782395355104&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-88406527-null-null.142^v35^control,185^v2^control&amp;utm_term=C%2B%2B%20final&amp;spm=1018.2226.3001.4187">final用法</a>。</p>
 </blockquote>
-<h2 id="Device-api-h"><a href="#Device-api-h" class="headerlink" title="Device_api.h"></a>Device_api.h</h2><h4 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h4><pre><code class="Cpp">namespace dlsys&#123;
+<h2 id="Device-api-h"><a href="#Device-api-h" class="headerlink" title="Device_api.h"></a>Device_api.h</h2><h4 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h4><pre><code class="lang-Cpp">namespace dlsys&#123;
     namespace runtime&#123;
         class DeviceAPI&#123;
             public:
@@ -343,7 +343,7 @@
 <h2 id="cuda-device-api-cc-amp-cuda-device-api-h"><a href="#cuda-device-api-cc-amp-cuda-device-api-h" class="headerlink" title="cuda_device_api.cc &amp; cuda_device_api.h"></a>cuda_device_api.cc &amp; cuda_device_api.h</h2><ul>
 <li><h4 id="h文件源码"><a href="#h文件源码" class="headerlink" title="h文件源码"></a>h文件源码</h4></li>
 </ul>
-<pre><code class="Cpp">namespace dlsys&#123;
+<pre><code class="lang-Cpp">namespace dlsys&#123;
     namespace runtime&#123;
         class CUDADeviceAPI : public DeviceAPI&#123;
             public:
@@ -363,20 +363,20 @@
 <ul>
 <li><h4 id="h文件源码解析"><a href="#h文件源码解析" class="headerlink" title="h文件源码解析"></a>h文件源码解析</h4><p>CUDADeviceAPI作为DeviceAPI的子类，需要重写父类定义的纯虚函数。</p>
 </li>
-<li><h4 id="Cpp文件源码以及解析"><a href="#Cpp文件源码以及解析" class="headerlink" title="Cpp文件源码以及解析"></a>Cpp文件源码以及解析</h4></li>
-</ul>
-<pre><code class="Cpp">#define CUDA_CALL(func)
+<li><h4 id="Cpp文件源码以及解析"><a href="#Cpp文件源码以及解析" class="headerlink" title="Cpp文件源码以及解析"></a>Cpp文件源码以及解析</h4><pre><code class="lang-Cpp">#define CUDA_CALL(func)
 &#123;
-    cudaError_t err = (func);
-    assert((err == cudaSucces) || (e == cudaErrorCudartUnloading));
+  cudaError_t err = (func);
+  assert((err == cudaSucces) || (e == cudaErrorCudartUnloading));
 &#125;
 </code></pre>
 <p>定义了宏函数，用来判定每一个CUDA执行是否报错，若有报错则抛出异常。</p>
+</li>
+</ul>
 <p>接下来这个文件在dlsys::runtime下，实体定义了CUDADeviceAPI类的函数。</p>
-<pre><code class="Cpp">static void GPUCopy(const void *from, void *to, size_t size,
+<pre><code class="lang-Cpp">static void GPUCopy(const void *from, void *to, size_t size,
 
                                         cudaMemcpyKind kind, cudaStream_t stream) &#123;
-    if (stream != 0) &#123;	
+    if (stream != 0) &#123;    
         CUDA_CALL(cudaMemcpyAsync(to, from, size, kind, stream));
     &#125; 
     else &#123;
@@ -385,149 +385,148 @@
 &#125;
 </code></pre>
 <p>首先定义了GPU复制的函数，为CopyDataFromTo成员函数提供GPU的接口。</p>
-<pre><code class="Cpp">void *CUDADeviceAPI::AllocDataSpace(DLContext ctx, size_t size,
+<pre><code class="lang-Cpp">void *CUDADeviceAPI::AllocDataSpace(DLContext ctx, size_t size,
 
 size_t alignment) &#123;
 
 //std::cout &lt;&lt; &quot;allocating cuda data&quot; &lt;&lt; std::endl;
 
     CUDA_CALL(cudaSetDevice(ctx.device_id));
-    
+
     assert((256 % alignment) == 0U); // &lt;&lt; &quot;CUDA space is aligned at 256 bytes&quot;;
-    
+
     void *ret;
-    
+
     CUDA_CALL(cudaMalloc(&amp;ret, size));
-    
+
     return ret;
 
 &#125;
 </code></pre>
 <p>AllocDataSpace首先根据DLContext的device_id设定指定的GPU（cudaSetDevice）。alignment负责将CUDA内存空间进行对齐。再定义一个任意类型的指针变量，ret，调用cudaMalloc，在GPU分配size大小的内存。</p>
-<pre><code class="Cpp">void CUDADeviceAPI::FreeDataSpace(DLContext ctx, void *ptr) &#123;
+<pre><code class="lang-Cpp">void CUDADeviceAPI::FreeDataSpace(DLContext ctx, void *ptr) &#123;
 
 //std::cout &lt;&lt; &quot;releasing cuda data&quot; &lt;&lt; std::endl;
 
     CUDA_CALL(cudaSetDevice(ctx.device_id));
-    
+
     CUDA_CALL(cudaFree(ptr));
 
 &#125;
 </code></pre>
 <p>FreeDataSpace根据DLContext的device_id找到指定的GPU，调用cudaFree释放内存。</p>
-<pre><code class="Cpp">void CUDADeviceAPI::CopyDataFromTo(const void *from, void *to, size_t size,
+<pre><code class="lang-Cpp">void CUDADeviceAPI::CopyDataFromTo(const void *from, void *to, size_t size,
 
 DLContext ctx_from, DLContext ctx_to, DLStreamHandle stream) &#123;
 
 //std::cout &lt;&lt; &quot;copying cuda data&quot; &lt;&lt; std::endl;
 
     cudaStream_t cu_stream = static_cast&lt;cudaStream_t&gt;(stream);
-    
+
     if (ctx_from.device_type == kGPU &amp;&amp; ctx_to.device_type == kGPU) &#123;
-    
+
         CUDA_CALL(cudaSetDevice(ctx_from.device_id));
-    
+
     if (ctx_from.device_id == ctx_to.device_id) &#123;
-    
+
         GPUCopy(from, to, size, cudaMemcpyDeviceToDevice, cu_stream);
-    
+
     &#125; else &#123;
-    
+
         cudaMemcpyPeerAsync(to, ctx_to.device_id, from, ctx_from.device_id,
-        
+
         size, cu_stream);
-    
+
     &#125;
-    
+
     &#125; else if (ctx_from.device_type == kGPU &amp;&amp; ctx_to.device_type == kCPU) &#123;
-    
+
         CUDA_CALL(cudaSetDevice(ctx_from.device_id));
-        
+
         GPUCopy(from, to, size, cudaMemcpyDeviceToHost, cu_stream);
-    
+
     &#125; else if (ctx_from.device_type == kCPU &amp;&amp; ctx_to.device_type == kGPU) &#123;
-    
+
         CUDA_CALL(cudaSetDevice(ctx_to.device_id));
-        
+
         GPUCopy(from, to, size, cudaMemcpyHostToDevice, cu_stream);
-    
+
     &#125; else &#123;
-    
+
         std::cerr &lt;&lt; &quot;expect copy from/to GPU or between GPU&quot; &lt;&lt; std::endl;
-    
+
     &#125;
 
 &#125;
 </code></pre>
 <p>CopyDataFromTo先进行逻辑判断，有四种情况：</p>
 <ol>
-<li>数据的来源和目的地都是GPU<br> 设置GPU设备（cudaSetDevice）。如果是在同一个GPU移动，直接调用GPUCopy。否则调用cudaMemcpyPeerAsync _（待完善和学习）_。</li>
+<li>数据的来源和目的地都是GPU<br> 设置GPU设备（cudaSetDevice）。如果是在同一个GPU移动，直接调用GPUCopy。否则调用cudaMemcpyPeerAsync <em>（待完善和学习）</em>。</li>
 <li>数据来自GPU，目的地是CPU<br> 直接调用GPUcopy。</li>
 <li>数据来自CPU，目的地是GPU<br> 直接调用GPUcopy。</li>
 <li>不允许执行CPU到CPU的，因为这是GPU的设备管理代码<br> 打印错误。</li>
 </ol>
-<pre><code class="Cpp">void CUDADeviceAPI::StreamSync(DLContext ctx, DLStreamHandle stream) &#123;
+<pre><code class="lang-Cpp">void CUDADeviceAPI::StreamSync(DLContext ctx, DLStreamHandle stream) &#123;
 
     CUDA_CALL(cudaSetDevice(ctx.device_id));
-    
+
     CUDA_CALL(cudaStreamSynchronize(static_cast&lt;cudaStream_t&gt;(stream)));
 
 &#125;
 </code></pre>
-<p>_（待完善和学习Stream相关的知识）_。</p>
+<p><em>（待完善和学习Stream相关的知识）</em>。</p>
 <h2 id="cpu-device-api-cc-amp-cpu-device-api-h"><a href="#cpu-device-api-cc-amp-cpu-device-api-h" class="headerlink" title="cpu_device_api.cc &amp; cpu_device_api.h"></a>cpu_device_api.cc &amp; cpu_device_api.h</h2><ul>
-<li><h4 id="h文件源码-1"><a href="#h文件源码-1" class="headerlink" title="h文件源码"></a>h文件源码</h4></li>
-</ul>
-<pre><code class="Cpp">namespace dlsys&#123;
+<li><h4 id="h文件源码-1"><a href="#h文件源码-1" class="headerlink" title="h文件源码"></a>h文件源码</h4><pre><code class="lang-Cpp">namespace dlsys&#123;
 
-    namespace runtime&#123;
-    
-        class CPUDeviceAPI:public DeviceAPI&#123;
-            public:
-            void *AllocDataSpace(DLContext ctx, size_t size, size_t alignment) final;
-            void FreeDataSpace(DLContext ctx, void *ptr) final;
-            void CopyDataFromTo(const void *from, void *to, size_t size,
-            DLContext ctx_from, DLContext ctx_to, DLStreamHandle stream) final;
-            void StreamSync(DLContext ctx, DLStreamHandle stream) final;
-        &#125;;
-    &#125;
+  namespace runtime&#123;
+
+      class CPUDeviceAPI:public DeviceAPI&#123;
+          public:
+          void *AllocDataSpace(DLContext ctx, size_t size, size_t alignment) final;
+          void FreeDataSpace(DLContext ctx, void *ptr) final;
+          void CopyDataFromTo(const void *from, void *to, size_t size,
+          DLContext ctx_from, DLContext ctx_to, DLStreamHandle stream) final;
+          void StreamSync(DLContext ctx, DLStreamHandle stream) final;
+      &#125;;
+  &#125;
 &#125;
 </code></pre>
-<ul>
+</li>
 <li><h4 id="h文件源码解析-1"><a href="#h文件源码解析-1" class="headerlink" title="h文件源码解析"></a>h文件源码解析</h4></li>
 </ul>
 <hr>
 <p>是对DeviceAPI的一次实体化。</p>
 <ul>
-<li><h4 id="Cpp文件源码以及解析-1"><a href="#Cpp文件源码以及解析-1" class="headerlink" title="Cpp文件源码以及解析"></a>Cpp文件源码以及解析</h4>CPU的设备管理的代码十分简单，如下</li>
-</ul>
-<pre><code class="Cpp">namespace dlsys&#123;
-    
-    namespace runtime&#123;
-    
-        void *CPUDeviceAPI::AllocDataSpace(DLContext ctx, size_t size,
-        
-        size_t alignment)&#123;
-            void *ptr;
-            int ret = posix_memalign(&amp;ptr, alignment, size);
-            if(ret != 0)
-            throw std::bad_alloc();
-            return ptr;
-        &#125;
-        
-        void CPUDeviceAPI::FreeDataSpace(DLContext ctx, void *ptr) &#123; free(ptr); &#125;
-        
-        void CPUDeviceAPI::CopyDataFromTo(const void *from, void *to, size_t size,
-        DLContext ctx_from, DLContext ctx_to,
-        DLStreamHandle stream) &#123;
-            memcpy(to, from, size);
-        &#125;
-        
-        void CPUDeviceAPI::StreamSync(DLContext ctx, DLStreamHandle stream) &#123;&#125;
-    
-    &#125;
+<li><h4 id="Cpp文件源码以及解析-1"><a href="#Cpp文件源码以及解析-1" class="headerlink" title="Cpp文件源码以及解析"></a>Cpp文件源码以及解析</h4><p>CPU的设备管理的代码十分简单，如下</p>
+<pre><code class="lang-Cpp">namespace dlsys&#123;
+
+  namespace runtime&#123;
+
+      void *CPUDeviceAPI::AllocDataSpace(DLContext ctx, size_t size,
+
+      size_t alignment)&#123;
+          void *ptr;
+          int ret = posix_memalign(&amp;ptr, alignment, size);
+          if(ret != 0)
+          throw std::bad_alloc();
+          return ptr;
+      &#125;
+
+      void CPUDeviceAPI::FreeDataSpace(DLContext ctx, void *ptr) &#123; free(ptr); &#125;
+
+      void CPUDeviceAPI::CopyDataFromTo(const void *from, void *to, size_t size,
+      DLContext ctx_from, DLContext ctx_to,
+      DLStreamHandle stream) &#123;
+          memcpy(to, from, size);
+      &#125;
+
+      void CPUDeviceAPI::StreamSync(DLContext ctx, DLStreamHandle stream) &#123;&#125;
+
+  &#125;
 &#125;
 </code></pre>
+</li>
+</ul>
 
   </div>
   <div id=""></div>
@@ -715,6 +714,21 @@ Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
 <script>
 	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 </script>
-	</body>
+	<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 

@@ -321,7 +321,7 @@
     <h1 id="Python-数据结构封装"><a href="#Python-数据结构封装" class="headerlink" title="Python 数据结构封装"></a>Python 数据结构封装</h1><blockquote>
 <p>ndarray文件夹实现了python与[[C运行时接口]]的对接。这一块的数据结构是专门用来实现GPU数据的进一步封装的。<br>_base 文件是用来加载动态连结库的，并提供了一些实用的小函数。<br>gpu_op是对CUDA内核的进一步封装。<br>ndarray则是对DLArray的进一步封装。<br>前两个文件的思路较为简单，这里直接对ndarray文件进行分析。</p>
 </blockquote>
-<h2 id="ndarray-py源码极其分析"><a href="#ndarray-py源码极其分析" class="headerlink" title="ndarray.py源码极其分析"></a>ndarray.py源码极其分析</h2><pre><code class="python">from __future__ import absolute_import
+<h2 id="ndarray-py源码极其分析"><a href="#ndarray-py源码极其分析" class="headerlink" title="ndarray.py源码极其分析"></a>ndarray.py源码极其分析</h2><pre><code class="lang-python">from __future__ import absolute_import
 from ._base import _LIB, check_call, c_array
 from . import ndarray as _nd
 
@@ -332,31 +332,31 @@ class DLContext(ctypes.Structure):
 
     _fields_ = [(&quot;device_id&quot;, ctypes.c_int),
     (&quot;device_type&quot;, ctypes.c_int)]
-    
+
     MASK2STR = &#123;
     1: &#39;cpu&#39;,
     2: &#39;gpu&#39;,
     &#125;
-      
-    
+
+
     def __init__(self, device_id, device_type):
         super(DLContext, self).__init__()
         self.device_id = device_id
         self.device_type = device_type
-    
-    
+
+
     def __repr__(self):
         return &quot;%s(%d)&quot; % (DLContext.MASK2STR[self.device_type], self.device_id)
 </code></pre>
 <p>这里实现的是对DLContext的封装，这是ctype所必须的操作。</p>
-<pre><code class="python">class DLArray(ctypes.Structure):
+<pre><code class="lang-python">class DLArray(ctypes.Structure):
 
     _fields_ = [(&quot;data&quot;, ctypes.c_void_p),
-    
+
     (&quot;ctx&quot;, DLContext),
-    
+
     (&quot;ndim&quot;, ctypes.c_int),
-    
+
     (&quot;shape&quot;, ctypes.POINTER(ctypes.c_int64))]
 
 # 指针类型
@@ -376,73 +376,73 @@ def is_gpu_ctx(ctx):
     return ctx and ctx.device_type == 2
 </code></pre>
 <p>对DLArray的封装，并提供了指针和一些小函数。</p>
-<pre><code class="python">def array(arr, ctx=cpu(0)):
+<pre><code class="lang-python">def array(arr, ctx=cpu(0)):
 
     if not isinstance(arr, np.ndarray):
-    
+
     arr = np.array(arr)
-    
+
     ret = empty(arr.shape, ctx)
-    
+
     ret._sync_copyfrom(arr)
-    
+
     return ret
 
-  
-  
+
+
 
 def empty(shape, ctx=cpu(0)):
 
     shape = c_array(ctypes.c_int64, shape)
-    
+
     ndim = ctypes.c_int(len(shape))
-    
+
     handle = DLArrayHandle()
-    
+
     check_call(_LIB.DLArrayAlloc(
-    
+
     shape, ndim, ctx, ctypes.byref(handle)))
-    
+
     return NDArray(handle)
 
-  
-  
+
+
 
 def reshape(arr, new_shape):
 
     assert isinstance(arr, _nd.NDArray)
-    
+
     shape = c_array(ctypes.c_int64, new_shape)
-    
+
     new_dim = len(new_shape)
-    
+
     handle = arr.handle
-    
+
     check_call(_LIB.DLArrayReshape(handle, shape, new_dim))
 </code></pre>
 <p>empty函数根据shape，会在cpu上创建一个DLArray，分配对应的内存空间，并返回。<br>array则是将非numpy array类型的数据转换为numpy。<br>reshape则调用LIB中的函数，改变数据的形状。</p>
-<pre><code class="python">class NDArray(object):
+<pre><code class="lang-python">class NDArray(object):
     __slots__ = [&#39;handle&#39;]
-      
+
     def __init__(self, handle):
         self.handle = handle
-      
-    
+
+
     def __del__(self):
         check_call(_LIB.DLArrayFree(self.handle))
-    
-      
+
+
     @property
     def shape(self):
         return tuple(self.handle.contents.shape[i]
                         for i in range(self.handle.contents.ndim))
-      
+
     @property
     def ctx(self):
         return self.handle.contents.ctx
-    
-      
-    
+
+
+
     def __setitem__(self, in_slice, value):
         &quot;&quot;&quot;Set ndarray value&quot;&quot;&quot;
         if (not isinstance(in_slice, slice) or
@@ -456,9 +456,9 @@ def reshape(arr, new_shape):
             self._sync_copyfrom(value)
         else:
             raise TypeError(&#39;type %s not supported&#39; % str(type(value)))
-    
-      
-    
+
+
+
     def _sync_copyfrom(self, source_array):
         if not isinstance(source_array, np.ndarray):
             try:
@@ -475,11 +475,11 @@ def reshape(arr, new_shape):
                         ctypes.byref(source_arr), self.handle, None))
         # de-allocate shape until now
         _ = shape
-    
-      
-    
+
+
+
     @staticmethod
-    
+
     def _numpyasarray(np_data):
         data = np_data
         assert data.flags[&#39;C_CONTIGUOUS&#39;]
@@ -490,9 +490,9 @@ def reshape(arr, new_shape):
         arr.ndim = data.ndim
         arr.ctx = cpu(0)
         return arr, shape
-    
-      
-    
+
+
+
     def asnumpy(self):
         np_arr = np.empty(self.shape, dtype=np.float32)
         arr, shape = NDArray._numpyasarray(np_arr)
@@ -500,9 +500,9 @@ def reshape(arr, new_shape):
         self.handle, ctypes.byref(arr), None))
         _ = shape
         return np_arr
-    
-      
-    
+
+
+
     def copyto(self, target):
         if isinstance(target, DLContext):
             target = empty(self.shape, target)
@@ -693,6 +693,21 @@ Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
 <script>
 	console.log('\n %c Hexo-Quiet 主题 %c https://github.com/79e/hexo-theme-quiet \n', 'color: #fadfa3; background: #030307; padding:5px 0;', 'background: #fadfa3; padding:5px 0;')
 </script>
-	</body>
+	<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
 </html>
 

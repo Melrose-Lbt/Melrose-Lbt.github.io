@@ -2,7 +2,7 @@
 <html>
 	<head>
 		
-<title>【Thunder源码阅读】Python数据结构封装-LBT</title>
+<title>【Paper Reading Note】Reducing the dimensionality of data with neural networks-LBT</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -12,7 +12,7 @@
 
 
 
-<meta name="keywords" content="CUDA,C++,">
+<meta name="keywords" content="Paper,Deep Belief Network,Boltzman machine,">
 <meta name="description" content="">
 
 
@@ -284,14 +284,16 @@
         <ul class="post-header-tag">
             
             
-            <li><a href="/tags/CUDA">CUDA</a></li>
+            <li><a href="/tags/Paper">Paper</a></li>
             
-            <li><a href="/tags/C++">C++</a></li>
+            <li><a href="/tags/Deep Belief Network">Deep Belief Network</a></li>
+            
+            <li><a href="/tags/Boltzman machine">Boltzman machine</a></li>
             
             
         </ul>
         
-        <h1>【Thunder源码阅读】Python数据结构封装</h1>
+        <h1>【Paper Reading Note】Reducing the dimensionality of data with neural networks</h1>
         <div class="post-header-info">
             <div class="post-header-info-author">
                 
@@ -305,10 +307,10 @@
                 <span class="post-header-info-author-text"> <a href="../../about">Melrose</a></span>
                 <div class="post-header-info-author-categories">
                     
-                         <a href="../../categories/Source-Code-Reading-Note/" target="_blank" >Source Code Reading Note</a>
+                         <a href="../../categories/Paper-reading-note/" target="_blank" >Paper reading note</a>
                     
                 </div>
-                <p>2022-10-15 19:07:22</p>
+                <p>2022-10-20 19:23:22</p>
             </div>
         </div>
     </div>
@@ -318,38 +320,57 @@
   <div id="article" class="post-content-info">
     
 
-    <h1 id="GPU运算数据结构"><a href="#GPU运算数据结构" class="headerlink" title="GPU运算数据结构"></a>GPU运算数据结构</h1><blockquote>
-<p>这里首先可以了解一下 <strong>cplusplus 和 extern “C”的含义</strong>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_36817189/article/details/110423243?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165884116316781790729085%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165884116316781790729085&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-110423243-null-null.142^v34^control,185^v2^control&amp;utm_term=extern%20C&amp;spm=1018.2226.3001.4187">extern C</a>。</p>
+    <h1 id="【Paper-Reading-Note】Reducing-the-dimensionality-of-data-with-neural-networks"><a href="#【Paper-Reading-Note】Reducing-the-dimensionality-of-data-with-neural-networks" class="headerlink" title="【Paper Reading Note】Reducing the dimensionality of data with neural networks"></a>【Paper Reading Note】Reducing the dimensionality of data with neural networks</h1><p>[TOC]</p>
+<p><strong>Author</strong>: <strong>G.E. Hinton and R.R. Salakhutdinov</strong></p>
+<blockquote>
+<p><strong>Abstract</strong>: High-dimensional data can be converted to low-dimensional codes by training a multilayer neural network with a small central layer to reconstruct high-dimensional input vectors. Gradient descent can be used for fine-tuning the weights in such “auto encoder” networks, but this works well only if the initial weights are close to a good solution. We describe an effective way of initializing the weights that allows deep auto encoder networks to learn low-dimensional codes that work much better than principal components analysis as a tool to reduce the dimensionality of data.</p>
 </blockquote>
-<h4 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h4><pre><code class="lang-Cpp">#ifdef __cplusplus
-#define DLSYS_EXTERN_C extern &quot;C&quot;
-#else
-#define DLSYS_EXTERN_C
-#endif
+<h2 id="1-Background-Knowledge"><a href="#1-Background-Knowledge" class="headerlink" title="1. Background Knowledge"></a><strong><em>1. Background Knowledge</em></strong></h2><h3 id="1-1-Boltzman-machine-amp-Restricted-Boltzman-machine"><a href="#1-1-Boltzman-machine-amp-Restricted-Boltzman-machine" class="headerlink" title="1.1 Boltzman machine &amp; Restricted Boltzman machine"></a><strong><em>1.1 Boltzman machine &amp; Restricted Boltzman machine</em></strong></h3><p>The first problem is what is the Boltzman machine. A <strong>Boltzmann machine</strong> is a network of symmetrically connected, neuron-like units that make stochastic decisions about whether to be on or off. A <strong>Restricted Boltzman machine</strong> is a network like the two layers of fully connected layer. The visualization of two machines are shown in <strong>Fig. 1</strong>.</p>
+<p><img src="/image/article/RBM.png" alt=""></p>
+<center>Fig.1 Visualization of BM and RBM.</center>
 
-#include &lt;stddef.h&gt;
-#include &lt;stdint.h&gt;
+<p>In this article, we mainly focus on the <strong>Restricted Boltzman machine</strong> (<strong>RBM</strong> in short).</p>
+<h4 id="Mechanism-of-RBM"><a href="#Mechanism-of-RBM" class="headerlink" title="Mechanism of RBM"></a><strong><em>Mechanism of RBM</em></strong></h4><p>The <strong>Restricted Boltzman machine</strong> has two layer. The first layer is the visible layer, and the second layer is the hidden layer. Each layer has several nodes. Each node has two states, 1 or 0. We simply called these layer $v<em>i$, $h_j$, which means the ith node for the visible layer and the jth node for the hidden layer. The weight between the node $v_i$ and $h_j$ is $w</em>{ij}$. Each node also has bias.</p>
+<p>The total energy for the given state vectors $\vec{v},\vec{h}$ is :</p>
+<script type="math/tex; mode=display">
+E(\vec{v}, \vec{h})= -\sum_ia_iv_i-\sum_jb_jh_j-\sum_{i,j}v_ih_jw_{ij}</script><p><strong>RBM</strong> is a probability-based model. In each time step, <strong>RBM</strong> has a certain state which can be descriped as $(\vec{v}, \vec{h})$. The probability distribution is :</p>
+<script type="math/tex; mode=display">
+p(\vec{v}, \vec{h})=\frac{e^{-E(\vec{v}, \vec{h})}}{\sum_{\vec{v}, \vec{h}}e^{-E(\vec{v}, \vec{h})}}</script><p>This is so called <strong>Boltzman distribution</strong>. It gives the probability when the particle in a certain state.</p>
+<p>However, to calculate the (2) distribution is difficult. But to calculate the conditional distribution is relatively easier.</p>
+<script type="math/tex; mode=display">
+p(\vec{h}|\vec{v})=\prod_ip(h_i|\vec{v}) \\
+p(\vec{v}|\vec{h})=\prod_ip(v_i|\vec{h})</script><p>Whatever the BM or the RBM, the state of a unit or you could say neuron could be 0 or 1. The probability to be 1 for each unit is:</p>
+<script type="math/tex; mode=display">
+p(h_j=1|\vec{v}) = \sigma(b_i + \sum_i v_iw_{ij})</script><p>Where $w_{ij}$ is the weight on the connection between unit $i$ nad $j$, and $v_i$ is the state of the unit, 1is on and 0 is off. $\sigma()$ function is:</p>
+<script type="math/tex; mode=display">
+\sigma(x) = \frac{1}{1+e^{-x}}</script><p>The detail information of how to get (4) please refer to <a target="_blank" rel="noopener" href="https://www.cnblogs.com/pinard/p/6530523.html">Here</a>.</p>
+<h4 id="Training-Method-Gibbs-Sampling-amp-Contrastive-Divergence"><a href="#Training-Method-Gibbs-Sampling-amp-Contrastive-Divergence" class="headerlink" title="Training Method: Gibbs Sampling &amp; Contrastive Divergence"></a><strong><em>Training Method: Gibbs Sampling &amp; Contrastive Divergence</em></strong></h4><p>For the Constrastive Divergence algorithm please refer to <a target="_blank" rel="noopener" href="https://www.robots.ox.ac.uk/~ojw/files/NotesOnCD.pdf">Notes On CD</a> and <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36607894/article/details/96635664">This</a>. </p>
+<p>So for the gradient of $w_{ij}$, the equation is:</p>
+<script type="math/tex; mode=display">
+\Delta{w_{ij}} = \epsilon \times(<v_ih_j>_{data}-<v^{'}_ih^{'}_j>_{reconstruction})</script><h3 id="1-2-Maximum-Likelihood-Approximation"><a href="#1-2-Maximum-Likelihood-Approximation" class="headerlink" title="1.2 Maximum Likelihood Approximation"></a><strong><em>1.2 Maximum Likelihood Approximation</em></strong></h3><p><strong>MLA</strong> can approximate the model’s parameters when you have defined which model you chose. </p>
+<p><img src="/image/article/MaxLike.jpeg" alt=""></p>
+<center>
+  Fig. 2 The visualization of maximum likelihood method.
+</center>
 
-DLSYS_EXTERN_C &#123;
-    typedef enum&#123;
-        kCPU = 1,
-        kGPU = 2,
-    &#125;DLDeviceType;
-
-    typedef struct&#123;
-        int device_id;
-        DLDeviceType device_type;
-    &#125;DLContext;
-
-    typedef struct&#123;
-        void *data;
-        DLContext ctx;
-        int ndim;
-        int64_t *shape;
-    &#125;DLArray;
-&#125;
-</code></pre>
-<h4 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h4><p>这段代码定义了最基本的数据结构。DLDeviceType采用枚举类型定义，定义此时系统选择的CPU还是GPU进行运算。DLContext用于定义运行时的CPU或GPU信息。DLArray定义数据结构Tensor，包含数据的指针、CPU或GPU信息、维度以及形状。</p>
+<p>We can see <strong>RBM</strong> as a black box. Given an input vector and finally it will output a reconstructed vector. How do we guess the model parameters based on the information that we already know? Well, as we know, we have already understand the fundemental mechanism of the <strong>RBM</strong>. So we know its model, but we don’t know its parameters. Here, the maximum likelihood method can be used as shown in Fig. 2.</p>
+<p>In the <strong>RBM</strong>, we want the output equals to the input. So, the input and label in this case are <__X__, __X__> because <strong>Y</strong>=<strong>X</strong>. Hence, we could derive the equation of $P(\vec{v_{out}})$:</p>
+<script type="math/tex; mode=display">
+P(\vec{v_{out}})= \sum_hP(\vec{v}, \vec{h})=\frac{\sum_he^{-E(\vec{v_{out},\vec{h}})}}{\sum_{\vec{v},\vec{h}}e^{-E(\vec{v}, \vec{h})}}</script><p>Write it in a log form:</p>
+<script type="math/tex; mode=display">
+L(W,a,b)=-\sum_iln(P(\vec{v^{(i)}_{out}}))</script><h2 id="2-Content"><a href="#2-Content" class="headerlink" title="2. Content"></a><strong><em>2. Content</em></strong></h2><p>The autoencoder presented by Hinton is used for dimensionality reduction. Compared with PCA, which finds the directions of greatest variance in the dataset and represents each data point by its coordinates along each of these directions. The visualization of an encoder is shown in Fig. 3.</p>
+<p><img src="/image/article/encoder.png" alt=""></p>
+<h3 id="2-1-The-current-issue-of-optimizing-the-autoencoder"><a href="#2-1-The-current-issue-of-optimizing-the-autoencoder" class="headerlink" title="2.1 The current issue of optimizing the autoencoder"></a><strong><em>2.1 The current issue of optimizing the autoencoder</em></strong></h3><p>When a autoencode has multiple layers, it is difficult to optimize the weight.</p>
+<blockquote>
+<p>If the initial weights are large, autoencoders will find poor local minima;</p>
+<p>If the initial weights are small, the gradients will vanish.</p>
+</blockquote>
+<p>If the initial weights are close to a good solution, gradient descent works very well.</p>
+<p><strong>QUESTION</strong>: How to find this initial weights?</p>
+<p><strong>SOLUTION</strong>: Use pretraining procedure one layer at a time.</p>
+<h3 id="2-2-The-pretrain-method"><a href="#2-2-The-pretrain-method" class="headerlink" title="2.2 The pretrain method"></a><strong><em>2.2 The pretrain method</em></strong></h3><p>Use <strong>RBM</strong> as an unit to train, and the contrastive divergence as learning method.</p>
+<h3 id="2-3-Layer-by-layer-architecture"><a href="#2-3-Layer-by-layer-architecture" class="headerlink" title="2.3 Layer by layer architecture"></a><strong><em>2.3 Layer by layer architecture</em></strong></h3><p>After trained a <strong>RBM</strong>, we can use the hidden layer of the first <strong>RBM</strong> as the visible layer for the next <strong>RBM</strong>. You can connect it as many as possible. </p>
+<h3 id="2-4-So-called-Deep-Belief-Network"><a href="#2-4-So-called-Deep-Belief-Network" class="headerlink" title="2.4 So called Deep Belief Network"></a><strong><em>2.4 So called Deep Belief Network</em></strong></h3><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37520918/article/details/102738465">Deep Belief Network</a></p>
 
   </div>
   <div id=""></div>
@@ -410,19 +431,12 @@ Fancybox.bind('[data-fancybox="fancybox-gallery-img"]', {
 
     <div class="post-paging">
     
-    <a href="/2022/10/15/%E3%80%90Thunder%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB%E3%80%91%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/">
-        <div class="post-paging-last">
-            <span>上一篇</span>
-            <p>【Thunder源码阅读】Python数据结构封装</p>
-        </div>
-    </a>
-    
 
     
-    <a href="/2022/10/15/CUDA-C%E4%B8%8EPython%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B%E6%80%9D%E8%B7%AF/">
+    <a href="/2022/10/15/Intro/">
         <div class="post-paging-next">
             <span>下一篇</span>
-            <p>CUDA/C与Python混合编程思路</p>
+            <p>Intro</p>
         </div>
     </a>
     
