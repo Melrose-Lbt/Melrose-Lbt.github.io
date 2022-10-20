@@ -318,202 +318,24 @@
   <div id="article" class="post-content-info">
     
 
-    <h1 id="Python-数据结构封装"><a href="#Python-数据结构封装" class="headerlink" title="Python 数据结构封装"></a>Python 数据结构封装</h1><blockquote>
-<p>ndarray文件夹实现了python与[[C运行时接口]]的对接。这一块的数据结构是专门用来实现GPU数据的进一步封装的。<br>_base 文件是用来加载动态连结库的，并提供了一些实用的小函数。<br>gpu_op是对CUDA内核的进一步封装。<br>ndarray则是对DLArray的进一步封装。<br>前两个文件的思路较为简单，这里直接对ndarray文件进行分析。</p>
+    <h1>Python 数据结构封装</h1>
+<blockquote>
+<p>ndarray文件夹实现了python与[[C运行时接口]]的对接。这一块的数据结构是专门用来实现GPU数据的进一步封装的。<br>
+_base 文件是用来加载动态连结库的，并提供了一些实用的小函数。<br>
+gpu_op是对CUDA内核的进一步封装。<br>
+ndarray则是对DLArray的进一步封装。<br>
+前两个文件的思路较为简单，这里直接对ndarray文件进行分析。</p>
 </blockquote>
-<h2 id="ndarray-py源码极其分析"><a href="#ndarray-py源码极其分析" class="headerlink" title="ndarray.py源码极其分析"></a>ndarray.py源码极其分析</h2><pre><code class="lang-python">from __future__ import absolute_import
-from ._base import _LIB, check_call, c_array
-from . import ndarray as _nd
-
-import ctypes
-import numpy as np
-
-class DLContext(ctypes.Structure):
-
-    _fields_ = [(&quot;device_id&quot;, ctypes.c_int),
-    (&quot;device_type&quot;, ctypes.c_int)]
-
-    MASK2STR = &#123;
-    1: &#39;cpu&#39;,
-    2: &#39;gpu&#39;,
-    &#125;
-
-
-    def __init__(self, device_id, device_type):
-        super(DLContext, self).__init__()
-        self.device_id = device_id
-        self.device_type = device_type
-
-
-    def __repr__(self):
-        return &quot;%s(%d)&quot; % (DLContext.MASK2STR[self.device_type], self.device_id)
-</code></pre>
+<h2 id="ndarray-py源码极其分析">ndarray.py源码极其分析</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> absolute_import<br><span class="hljs-keyword">from</span> ._base <span class="hljs-keyword">import</span> _LIB, check_call, c_array<br><span class="hljs-keyword">from</span> . <span class="hljs-keyword">import</span> ndarray <span class="hljs-keyword">as</span> _nd<br><br><span class="hljs-keyword">import</span> ctypes<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DLContext</span>(ctypes.Structure):<br><br>	_fields_ = [(<span class="hljs-string">&quot;device_id&quot;</span>, ctypes.c_int),<br>	(<span class="hljs-string">&quot;device_type&quot;</span>, ctypes.c_int)]<br>	<br>	MASK2STR = &#123;<br>	<span class="hljs-number">1</span>: <span class="hljs-string">&#x27;cpu&#x27;</span>,<br>	<span class="hljs-number">2</span>: <span class="hljs-string">&#x27;gpu&#x27;</span>,<br>	&#125;<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, device_id, device_type</span>):<br>		<span class="hljs-built_in">super</span>(DLContext, self).__init__()<br>		self.device_id = device_id<br>		self.device_type = device_type<br>	<br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__repr__</span>(<span class="hljs-params">self</span>):<br>		<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;%s(%d)&quot;</span> % (DLContext.MASK2STR[self.device_type], self.device_id)<br></code></pre></td></tr></table></figure>
 <p>这里实现的是对DLContext的封装，这是ctype所必须的操作。</p>
-<pre><code class="lang-python">class DLArray(ctypes.Structure):
-
-    _fields_ = [(&quot;data&quot;, ctypes.c_void_p),
-
-    (&quot;ctx&quot;, DLContext),
-
-    (&quot;ndim&quot;, ctypes.c_int),
-
-    (&quot;shape&quot;, ctypes.POINTER(ctypes.c_int64))]
-
-# 指针类型
-
-DLArrayHandle = ctypes.POINTER(DLArray)
-
-def cpu(dev_id=0):
-
-    return DLContext(dev_id, 1)
-
-def gpu(dev_id=0):
-
-    return DLContext(dev_id, 2)
-
-def is_gpu_ctx(ctx):
-
-    return ctx and ctx.device_type == 2
-</code></pre>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DLArray</span>(ctypes.Structure):<br><br>	_fields_ = [(<span class="hljs-string">&quot;data&quot;</span>, ctypes.c_void_p),<br>	<br>	(<span class="hljs-string">&quot;ctx&quot;</span>, DLContext),<br>	<br>	(<span class="hljs-string">&quot;ndim&quot;</span>, ctypes.c_int),<br>	<br>	(<span class="hljs-string">&quot;shape&quot;</span>, ctypes.POINTER(ctypes.c_int64))]<br><br><span class="hljs-comment"># 指针类型</span><br><br>DLArrayHandle = ctypes.POINTER(DLArray)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">cpu</span>(<span class="hljs-params">dev_id=<span class="hljs-number">0</span></span>):<br><br>	<span class="hljs-keyword">return</span> DLContext(dev_id, <span class="hljs-number">1</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gpu</span>(<span class="hljs-params">dev_id=<span class="hljs-number">0</span></span>):<br><br>	<span class="hljs-keyword">return</span> DLContext(dev_id, <span class="hljs-number">2</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_gpu_ctx</span>(<span class="hljs-params">ctx</span>):<br><br>	<span class="hljs-keyword">return</span> ctx <span class="hljs-keyword">and</span> ctx.device_type == <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
 <p>对DLArray的封装，并提供了指针和一些小函数。</p>
-<pre><code class="lang-python">def array(arr, ctx=cpu(0)):
-
-    if not isinstance(arr, np.ndarray):
-
-    arr = np.array(arr)
-
-    ret = empty(arr.shape, ctx)
-
-    ret._sync_copyfrom(arr)
-
-    return ret
-
-
-
-
-def empty(shape, ctx=cpu(0)):
-
-    shape = c_array(ctypes.c_int64, shape)
-
-    ndim = ctypes.c_int(len(shape))
-
-    handle = DLArrayHandle()
-
-    check_call(_LIB.DLArrayAlloc(
-
-    shape, ndim, ctx, ctypes.byref(handle)))
-
-    return NDArray(handle)
-
-
-
-
-def reshape(arr, new_shape):
-
-    assert isinstance(arr, _nd.NDArray)
-
-    shape = c_array(ctypes.c_int64, new_shape)
-
-    new_dim = len(new_shape)
-
-    handle = arr.handle
-
-    check_call(_LIB.DLArrayReshape(handle, shape, new_dim))
-</code></pre>
-<p>empty函数根据shape，会在cpu上创建一个DLArray，分配对应的内存空间，并返回。<br>array则是将非numpy array类型的数据转换为numpy。<br>reshape则调用LIB中的函数，改变数据的形状。</p>
-<pre><code class="lang-python">class NDArray(object):
-    __slots__ = [&#39;handle&#39;]
-
-    def __init__(self, handle):
-        self.handle = handle
-
-
-    def __del__(self):
-        check_call(_LIB.DLArrayFree(self.handle))
-
-
-    @property
-    def shape(self):
-        return tuple(self.handle.contents.shape[i]
-                        for i in range(self.handle.contents.ndim))
-
-    @property
-    def ctx(self):
-        return self.handle.contents.ctx
-
-
-
-    def __setitem__(self, in_slice, value):
-        &quot;&quot;&quot;Set ndarray value&quot;&quot;&quot;
-        if (not isinstance(in_slice, slice) or
-                                    in_slice.start is not None
-                                    or in_slice.stop is not None):
-            raise ValueError(&#39;Array only support set from numpy array&#39;)
-        if isinstance(value, NDArray):
-            if value.handle is not self.handle:
-                value.copyto(self)
-        elif isinstance(value, (np.ndarray, np.generic)):
-            self._sync_copyfrom(value)
-        else:
-            raise TypeError(&#39;type %s not supported&#39; % str(type(value)))
-
-
-
-    def _sync_copyfrom(self, source_array):
-        if not isinstance(source_array, np.ndarray):
-            try:
-                source_array = np.array(source_array, dtype=np.float32)
-            except:
-                raise TypeError(&#39;array must be an array_like data,&#39; +
-        &#39;type %s is not supported&#39;
-                            % str(type(source_array)))
-        source_array = np.ascontiguousarray(source_array, dtype=np.float32)
-        if source_array.shape != self.shape:
-            raise ValueError(&#39;array shape do not match the shape of NDArray&#39;)
-        source_arr, shape = NDArray._numpyasarray(source_array)
-        check_call(_LIB.DLArrayCopyFromTo(
-                        ctypes.byref(source_arr), self.handle, None))
-        # de-allocate shape until now
-        _ = shape
-
-
-
-    @staticmethod
-
-    def _numpyasarray(np_data):
-        data = np_data
-        assert data.flags[&#39;C_CONTIGUOUS&#39;]
-        arr = DLArray()
-        shape = c_array(ctypes.c_int64, data.shape)
-        arr.data = data.ctypes.data_as(ctypes.c_void_p)
-        arr.shape = shape
-        arr.ndim = data.ndim
-        arr.ctx = cpu(0)
-        return arr, shape
-
-
-
-    def asnumpy(self):
-        np_arr = np.empty(self.shape, dtype=np.float32)
-        arr, shape = NDArray._numpyasarray(np_arr)
-        check_call(_LIB.DLArrayCopyFromTo(
-        self.handle, ctypes.byref(arr), None))
-        _ = shape
-        return np_arr
-
-
-
-    def copyto(self, target):
-        if isinstance(target, DLContext):
-            target = empty(self.shape, target)
-        if isinstance(target, NDArray):
-            check_call(_LIB.DLArrayCopyFromTo(
-                    self.handle, target.handle, None))
-        else:
-            raise ValueError(&quot;Unsupported target type %s&quot; % str(type(target)))
-        return target
-</code></pre>
-
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">array</span>(<span class="hljs-params">arr, ctx=cpu(<span class="hljs-params"><span class="hljs-number">0</span></span>)</span>):<br><br>	<span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(arr, np.ndarray):<br>	<br>	arr = np.array(arr)<br>	<br>	ret = empty(arr.shape, ctx)<br>	<br>	ret._sync_copyfrom(arr)<br>	<br>	<span class="hljs-keyword">return</span> ret<br><br>  <br>  <br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">empty</span>(<span class="hljs-params">shape, ctx=cpu(<span class="hljs-params"><span class="hljs-number">0</span></span>)</span>):<br><br>	shape = c_array(ctypes.c_int64, shape)<br>	<br>	ndim = ctypes.c_int(<span class="hljs-built_in">len</span>(shape))<br>	<br>	handle = DLArrayHandle()<br>	<br>	check_call(_LIB.DLArrayAlloc(<br>	<br>	shape, ndim, ctx, ctypes.byref(handle)))<br>	<br>	<span class="hljs-keyword">return</span> NDArray(handle)<br><br>  <br>  <br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">reshape</span>(<span class="hljs-params">arr, new_shape</span>):<br><br>	<span class="hljs-keyword">assert</span> <span class="hljs-built_in">isinstance</span>(arr, _nd.NDArray)<br>	<br>	shape = c_array(ctypes.c_int64, new_shape)<br>	<br>	new_dim = <span class="hljs-built_in">len</span>(new_shape)<br>	<br>	handle = arr.handle<br>	<br>	check_call(_LIB.DLArrayReshape(handle, shape, new_dim))<br></code></pre></td></tr></table></figure>
+<p>empty函数根据shape，会在cpu上创建一个DLArray，分配对应的内存空间，并返回。<br>
+array则是将非numpy array类型的数据转换为numpy。<br>
+reshape则调用LIB中的函数，改变数据的形状。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">NDArray</span>(<span class="hljs-title class_ inherited__">object</span>):<br>	__slots__ = [<span class="hljs-string">&#x27;handle&#x27;</span>]<br>	  <br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, handle</span>):<br>		self.handle = handle<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__del__</span>(<span class="hljs-params">self</span>):<br>		check_call(_LIB.DLArrayFree(self.handle))<br>	<br>	  <br><span class="hljs-meta">	@property</span><br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">shape</span>(<span class="hljs-params">self</span>):<br>		<span class="hljs-keyword">return</span> <span class="hljs-built_in">tuple</span>(self.handle.contents.shape[i]<br>						<span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.handle.contents.ndim))<br>	  <br><span class="hljs-meta">	@property</span><br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">ctx</span>(<span class="hljs-params">self</span>):<br>		<span class="hljs-keyword">return</span> self.handle.contents.ctx<br>	<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">__setitem__</span>(<span class="hljs-params">self, in_slice, value</span>):<br>		<span class="hljs-string">&quot;&quot;&quot;Set ndarray value&quot;&quot;&quot;</span><br>		<span class="hljs-keyword">if</span> (<span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(in_slice, <span class="hljs-built_in">slice</span>) <span class="hljs-keyword">or</span><br>									in_slice.start <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span><br>									<span class="hljs-keyword">or</span> in_slice.stop <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span>):<br>			<span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&#x27;Array only support set from numpy array&#x27;</span>)<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(value, NDArray):<br>			<span class="hljs-keyword">if</span> value.handle <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> self.handle:<br>				value.copyto(self)<br>		<span class="hljs-keyword">elif</span> <span class="hljs-built_in">isinstance</span>(value, (np.ndarray, np.generic)):<br>			self._sync_copyfrom(value)<br>		<span class="hljs-keyword">else</span>:<br>			<span class="hljs-keyword">raise</span> TypeError(<span class="hljs-string">&#x27;type %s not supported&#x27;</span> % <span class="hljs-built_in">str</span>(<span class="hljs-built_in">type</span>(value)))<br>	<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">_sync_copyfrom</span>(<span class="hljs-params">self, source_array</span>):<br>		<span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(source_array, np.ndarray):<br>			<span class="hljs-keyword">try</span>:<br>				source_array = np.array(source_array, dtype=np.float32)<br>			<span class="hljs-keyword">except</span>:<br>				<span class="hljs-keyword">raise</span> TypeError(<span class="hljs-string">&#x27;array must be an array_like data,&#x27;</span> +<br>		<span class="hljs-string">&#x27;type %s is not supported&#x27;</span><br>							% <span class="hljs-built_in">str</span>(<span class="hljs-built_in">type</span>(source_array)))<br>		source_array = np.ascontiguousarray(source_array, dtype=np.float32)<br>		<span class="hljs-keyword">if</span> source_array.shape != self.shape:<br>			<span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&#x27;array shape do not match the shape of NDArray&#x27;</span>)<br>		source_arr, shape = NDArray._numpyasarray(source_array)<br>		check_call(_LIB.DLArrayCopyFromTo(<br>						ctypes.byref(source_arr), self.handle, <span class="hljs-literal">None</span>))<br>		<span class="hljs-comment"># de-allocate shape until now</span><br>		_ = shape<br>	<br>	  <br>	<br><span class="hljs-meta">	@staticmethod</span><br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">_numpyasarray</span>(<span class="hljs-params">np_data</span>):<br>		data = np_data<br>		<span class="hljs-keyword">assert</span> data.flags[<span class="hljs-string">&#x27;C_CONTIGUOUS&#x27;</span>]<br>		arr = DLArray()<br>		shape = c_array(ctypes.c_int64, data.shape)<br>		arr.data = data.ctypes.data_as(ctypes.c_void_p)<br>		arr.shape = shape<br>		arr.ndim = data.ndim<br>		arr.ctx = cpu(<span class="hljs-number">0</span>)<br>		<span class="hljs-keyword">return</span> arr, shape<br>	<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">asnumpy</span>(<span class="hljs-params">self</span>):<br>		np_arr = np.empty(self.shape, dtype=np.float32)<br>		arr, shape = NDArray._numpyasarray(np_arr)<br>		check_call(_LIB.DLArrayCopyFromTo(<br>		self.handle, ctypes.byref(arr), <span class="hljs-literal">None</span>))<br>		_ = shape<br>		<span class="hljs-keyword">return</span> np_arr<br>	<br>	  <br>	<br>	<span class="hljs-keyword">def</span> <span class="hljs-title function_">copyto</span>(<span class="hljs-params">self, target</span>):<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(target, DLContext):<br>			target = empty(self.shape, target)<br>		<span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(target, NDArray):<br>			check_call(_LIB.DLArrayCopyFromTo(<br>					self.handle, target.handle, <span class="hljs-literal">None</span>))<br>		<span class="hljs-keyword">else</span>:<br>			<span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;Unsupported target type %s&quot;</span> % <span class="hljs-built_in">str</span>(<span class="hljs-built_in">type</span>(target)))<br>		<span class="hljs-keyword">return</span> target<br></code></pre></td></tr></table></figure>
   </div>
   <div id=""></div>
 </div>

@@ -316,48 +316,65 @@
   <div id="article" class="post-content-info">
     
 
-    <h1 id="CUDA-C-Python-混合编程思路"><a href="#CUDA-C-Python-混合编程思路" class="headerlink" title="CUDA C++ Python 混合编程思路"></a>CUDA C++ Python 混合编程思路</h1><h3 id="框架开发流程"><a href="#框架开发流程" class="headerlink" title="框架开发流程"></a>框架开发流程</h3><p><img src="/image/article/框架开发流程.png" alt="框架开发流程"><br>框架开发流程如上图所示。<br>为了明确框架开发的具体步骤，这里需要介绍一下相关的基础概念。</p>
-<h5 id="动态链接库dll"><a href="#动态链接库dll" class="headerlink" title="动态链接库dll"></a>动态链接库dll</h5><p>动态链接库（Dynamic Link Library）是一个可以被其他应用程序共享的模块，其中封装了一些可以被共享的程序和模块。动态链接库是与静态链接库相对的一个概念。动态链接库代码并不可以单独执行，需要配合操作系统调用到指定的应用程序中才可以完成执行。</p>
-<h3 id="1-使用VScode写CUDA代码"><a href="#1-使用VScode写CUDA代码" class="headerlink" title="1. 使用VScode写CUDA代码"></a>1. 使用VScode写CUDA代码</h3><p>创建cu文件和h头文件，在cu文件中撰写核函数和封装核函数的代码，如下图所示。<br><img src="/image/article/cudaK.png" alt="代码"></p>
-<p><img src="/image/article/0EE6AB.png" alt="extern"><br>需要注意的是要将封装核函数在h文件中extern “C” 声明。</p>
-<h3 id="2-用VScode终端进行编译调试"><a href="#2-用VScode终端进行编译调试" class="headerlink" title="2. 用VScode终端进行编译调试"></a>2. 用VScode终端进行编译调试</h3><p>a. 编译可执行文件命令</p>
-<pre><code>nvcc -o hello-gpu hello-gpu.cu -run
-</code></pre><p>b. 编译生成动态链接库文件.so</p>
-<pre><code>nvcc -o hello-gpu.so -shared hello-gpu.cu
-</code></pre><p>c. 创建一个main.cpp文件，包含hello-gpu.h之后，观察结果的命令</p>
-<pre><code>g++ -o main main.cpp hello-gpu.so
-</code></pre><h3 id="3-打开Visual-Studio-2019"><a href="#3-打开Visual-Studio-2019" class="headerlink" title="3. 打开Visual Studio 2019"></a>3. 打开Visual Studio 2019</h3><p>创建C++工程文件，把VScode中生成的hello-gpu.h，hello-gpu.so，hello-gpu.lib（三个文件缺一不可）放到Visual Studio的C++工程里。</p>
+    <h1>CUDA C++ Python 混合编程思路</h1>
+<h3 id="框架开发流程">框架开发流程</h3>
+<p><img src="/image/article/%E6%A1%86%E6%9E%B6%E5%BC%80%E5%8F%91%E6%B5%81%E7%A8%8B.png" alt="框架开发流程"><br>
+框架开发流程如上图所示。<br>
+为了明确框架开发的具体步骤，这里需要介绍一下相关的基础概念。</p>
+<h5 id="动态链接库dll">动态链接库dll</h5>
+<p>动态链接库（Dynamic Link Library）是一个可以被其他应用程序共享的模块，其中封装了一些可以被共享的程序和模块。动态链接库是与静态链接库相对的一个概念。动态链接库代码并不可以单独执行，需要配合操作系统调用到指定的应用程序中才可以完成执行。</p>
+<h3 id="1-使用VScode写CUDA代码">1. 使用VScode写CUDA代码</h3>
+<p>创建cu文件和h头文件，在cu文件中撰写核函数和封装核函数的代码，如下图所示。<br>
+<img src="/image/article/cudaK.png" alt="代码"></p>
+<p><img src="/image/article/0EE6AB.png" alt="extern"><br>
+需要注意的是要将封装核函数在h文件中extern “C” 声明。</p>
+<h3 id="2-用VScode终端进行编译调试">2. 用VScode终端进行编译调试</h3>
+<p>a. 编译可执行文件命令</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><code class="hljs applescript">nvcc -o hello-gpu hello-gpu.cu -<span class="hljs-built_in">run</span><br></code></pre></td></tr></table></figure>
+<p>b. <a target="_blank" rel="noopener" href="http://xn--5nqw3gs1n2mbi7dr5cpyek46b7zsf92andv.so">编译生成动态链接库文件.so</a></p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><code class="hljs vim">nvcc -<span class="hljs-keyword">o</span> hello-gpu.<span class="hljs-keyword">so</span> -shared hello-gpu.<span class="hljs-keyword">cu</span><br></code></pre></td></tr></table></figure>
+<p>c. 创建一个main.cpp文件，包含hello-gpu.h之后，观察结果的命令</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><code class="hljs stylus">g++ -o <span class="hljs-selector-tag">main</span> <span class="hljs-selector-tag">main</span><span class="hljs-selector-class">.cpp</span> hello-gpu.so<br></code></pre></td></tr></table></figure>
+<h3 id="3-打开Visual-Studio-2019">3. 打开Visual Studio 2019</h3>
+<p>创建C++工程文件，把VScode中生成的hello-gpu.h，<a target="_blank" rel="noopener" href="http://hello-gpu.so">hello-gpu.so</a>，hello-gpu.lib（三个文件缺一不可）放到Visual Studio的C++工程里。</p>
 <p>写mian.c代码，头部加入</p>
-<pre><code>#include &quot;hello-gpu.h&quot;
-#pragma comment(lib, &quot;hello-gpu.lib&quot;)
-</code></pre><p>并在头文件部分引入hello-gpu.h文件即可实现调用。</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><code class="hljs arduino"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;hello-gpu.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> comment(lib, <span class="hljs-string">&quot;hello-gpu.lib&quot;</span>)</span><br></code></pre></td></tr></table></figure>
+<p>并在头文件部分引入hello-gpu.h文件即可实现调用。</p>
 <p>如果可以跑成功，但没有执行GPU部分的代码，考虑是GPU与CPU程序异步问题。解决方法是在cu文件的封装核函数代码内加入</p>
-<pre><code class="lang-CUDA">cudaDeviceSynchronize();
-</code></pre>
-<h3 id="4-编写C-部分的文件，使用Pybind11生成pyd文件"><a href="#4-编写C-部分的文件，使用Pybind11生成pyd文件" class="headerlink" title="4. 编写C++部分的文件，使用Pybind11生成pyd文件"></a>4. 编写C++部分的文件，使用Pybind11生成pyd文件</h3><p>在VS2019上创建一个新的（也可以用旧的）C++工程，进入工程之后，切换到Release，x64模式。右键点击解决方案，进入属性界面。</p>
-<p>a. 进入  常规 ——&gt; 配置类型，改为.dll动态库。<br><img src="/image/article/A804DF57EF797D0A137FEFA933BC5079.png" alt=""></p>
-<p>b. 进入  高级 ——&gt; 目标文件扩展名，改为.pyd。<br><img src="/image/article/B1DD73F23611E506B651C9D2BB4AE3BA.png" alt=""></p>
-<p>c. 进入  VC++目录，编辑包含目录，添加anaconda的include和pybind11的include路径。<br><img src="/image/article/C4ACFA4454B6518663D5441A239DC6D5.png" alt=""></p>
-<p>d. 进入  VC++目录，编辑库目录，添加anaconda的libs路径。<br><img src="/image/article/3E4EB12CE8A3A07EA1EE2B38B267B0C7.png" alt=""></p>
-<p>e. 进入  链接器 ——&gt; 输入 ——&gt; 添加依赖项，添加python39.lib，python3.lib。<br><img src="/image/article/A51CCCF89150FD2E40A0BAB512068FF9.png" alt=""></p>
-<p>接下来按照pybind11的格式对编写好的C++程序进行封装。<br><img src="/image/article/9FD4023878CF02969256B626DB324E05.png" alt=""></p>
-<h3 id="5-Python部分处理"><a href="#5-Python部分处理" class="headerlink" title="5. Python部分处理"></a>5. Python部分处理</h3><p>得到pyd文件之后，需要对文件进行重命名</p>
-<pre><code>PYBIND11_MODULE(example, m)
-</code></pre><p>将文件名和exmaple的名字保持一致。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs CUDA">cudaDeviceSynchronize();<br></code></pre></td></tr></table></figure>
+<h3 id="4-编写C-部分的文件，使用Pybind11生成pyd文件">4. 编写C++部分的文件，使用Pybind11生成pyd文件</h3>
+<p>在VS2019上创建一个新的（也可以用旧的）C++工程，进入工程之后，切换到Release，x64模式。右键点击解决方案，进入属性界面。</p>
+<p>a. 进入  常规 ——&gt; 配置类型，改为.dll动态库。<br>
+<img src="/image/article/A804DF57EF797D0A137FEFA933BC5079.png" alt=""></p>
+<p>b. 进入  高级 ——&gt; 目标文件扩展名，改为.pyd。<br>
+<img src="/image/article/B1DD73F23611E506B651C9D2BB4AE3BA.png" alt=""></p>
+<p>c. 进入  VC++目录，编辑包含目录，添加anaconda的include和pybind11的include路径。<br>
+<img src="/image/article/C4ACFA4454B6518663D5441A239DC6D5.png" alt=""></p>
+<p>d. 进入  VC++目录，编辑库目录，添加anaconda的libs路径。<br>
+<img src="/image/article/3E4EB12CE8A3A07EA1EE2B38B267B0C7.png" alt=""></p>
+<p>e. 进入  链接器 ——&gt; 输入 ——&gt; 添加依赖项，添加python39.lib，python3.lib。<br>
+<img src="/image/article/A51CCCF89150FD2E40A0BAB512068FF9.png" alt=""></p>
+<p>接下来按照pybind11的格式对编写好的C++程序进行封装。<br>
+<img src="/image/article/9FD4023878CF02969256B626DB324E05.png" alt=""></p>
+<h3 id="5-Python部分处理">5. Python部分处理</h3>
+<p>得到pyd文件之后，需要对文件进行重命名</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><code class="hljs reasonml"><span class="hljs-constructor">PYBIND11_MODULE(<span class="hljs-params">example</span>, <span class="hljs-params">m</span>)</span><br></code></pre></td></tr></table></figure>
+<p>将文件名和exmaple的名字保持一致。</p>
 <p>同时，找到hello-gpu.so文件，放到当前的Python文件工程中文件夹下，在Python里就可以调用经过Pybind，C++封装的CUDA代码了。</p>
-<p>生成的时候必须注意，需要将自己包含的头文件在VC++和链接器中加入<br><img src="/image/article/Pasted image 20220718210450.png" alt=""></p>
-<p><img src="/image/article/Pasted image 20220718210502.png" alt=""></p>
-<h3 id="VSCode-采用nvcc编译"><a href="#VSCode-采用nvcc编译" class="headerlink" title="VSCode 采用nvcc编译"></a>VSCode 采用nvcc编译</h3><ol>
-<li><p>生成动态链接库</p>
-<pre><code class="lang-nvcc">nvcc -o xxx.so --shared xxx.cu xxx.cu
-</code></pre>
-</li>
-<li><p>携带相关头文件编译生成动态链接库</p>
-<pre><code class="lang-nvcc">nvcc -o xxx.so --shared xxx.cu xxx.cu xxx.cu -L &quot;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\lib\x64&quot; -l &quot;cudnn&quot;
-</code></pre>
-<p>-L : 表示需要去哪里寻找库文件<br>-l : 表示在-L指示下选择哪个文件（不需要加文件后缀）</p>
-</li>
+<p>生成的时候必须注意，需要将自己包含的头文件在VC++和链接器中加入<br>
+![](/image/article/Pasted image 20220718210450.png)</p>
+<p>![](/image/article/Pasted image 20220718210502.png)</p>
+<h3 id="VSCode-采用nvcc编译">VSCode 采用nvcc编译</h3>
+<ol>
+<li>生成动态链接库</li>
 </ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs nvcc">nvcc -o xxx.so --shared xxx.cu xxx.cu<br></code></pre></td></tr></table></figure>
+<ol start="2">
+<li>携带相关头文件编译生成动态链接库</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs nvcc">nvcc -o xxx.so --shared xxx.cu xxx.cu xxx.cu -L &quot;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\lib\x64&quot; -l &quot;cudnn&quot;<br></code></pre></td></tr></table></figure>
+<p>-L : 表示需要去哪里寻找库文件<br>
+-l : 表示在-L指示下选择哪个文件（不需要加文件后缀）</p>
 
   </div>
   <div id=""></div>

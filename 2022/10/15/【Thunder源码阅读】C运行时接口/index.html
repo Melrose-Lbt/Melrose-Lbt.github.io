@@ -318,298 +318,36 @@
   <div id="article" class="post-content-info">
     
 
-    <h1 id="C运行时接口"><a href="#C运行时接口" class="headerlink" title="C运行时接口"></a>C运行时接口</h1><blockquote>
-<p>C Runtime API是将数据结构、设备管理、GPU加速等C++或CUDA代码综合封装，并统一暴露给Python的文件。在阅读本章之前需要了解的前置知识有：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxiemin/article/details/110911324?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892209016782391814254%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&amp;request_id=165892209016782391814254&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-3-110911324-null-null.142^v35^control,185^v2^control&amp;utm_term=C%2B%2B%20static%20cast&amp;spm=1018.2226.3001.4187">Static Cast</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/itlilyer/article/details/107561110?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892168616782350851615%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165892168616782350851615&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_click~default-1-107561110-null-null.142^v35^control,185^v2^control&amp;utm_term=C%2B%2B%20array&amp;spm=1018.2226.3001.4187">Array容器</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu16659/article/details/87152348?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892182516781683943730%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165892182516781683943730&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-87152348-null-null.142^v35^control,185^v2^control&amp;utm_term=C%2B%2B%20fill&amp;spm=1018.2226.3001.4187">fill</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36614557/article/details/119283085?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-0-119283085-blog-80609369.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">子类向父类的转换</a>。</p>
+    <h1>C运行时接口</h1>
+<blockquote>
+<p>C Runtime API是将数据结构、设备管理、GPU加速等C++或CUDA代码综合封装，并统一暴露给Python的文件。在阅读本章之前需要了解的前置知识有：<a target="_blank" rel="noopener" href="https://blog.csdn.net/chenxiemin/article/details/110911324?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892209016782391814254%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&amp;request_id=165892209016782391814254&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-3-110911324-null-null.142%5Ev35%5Econtrol,185%5Ev2%5Econtrol&amp;utm_term=C%2B%2B%20static%20cast&amp;spm=1018.2226.3001.4187">Static Cast</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/itlilyer/article/details/107561110?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892168616782350851615%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165892168616782350851615&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_click~default-1-107561110-null-null.142%5Ev35%5Econtrol,185%5Ev2%5Econtrol&amp;utm_term=C%2B%2B%20array&amp;spm=1018.2226.3001.4187">Array容器</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/liu16659/article/details/87152348?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165892182516781683943730%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=165892182516781683943730&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-1-87152348-null-null.142%5Ev35%5Econtrol,185%5Ev2%5Econtrol&amp;utm_term=C%2B%2B%20fill&amp;spm=1018.2226.3001.4187">fill</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36614557/article/details/119283085?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-0-119283085-blog-80609369.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">子类向父类的转换</a>。</p>
 </blockquote>
-<h2 id="c-runtime-api-h-文件源码"><a href="#c-runtime-api-h-文件源码" class="headerlink" title="c_runtime_api.h 文件源码"></a>c_runtime_api.h 文件源码</h2><pre><code class="lang-Cpp">#ifndef DLSYS_RUNTIME_C_RUNTIME_API_H_
-#define DLSYS_RUNTIME_C_RUNTIME_API_H_
-
-#ifdef __cplusplus
-#define DLSYS_EXTERN_C extern &quot;C&quot;
-#else
-#define DLSYS_EXTERN_C
-#endif
-
-#include &quot;dlarray.h&quot;
-#include &lt;stddef.h&gt;
-#include &lt;stdint.h&gt;
-
-DLSYS_EXTERN_C &#123;
-
-    typedef int64_t index_t;
-    typedef DLArray *DLArrayHandle;
-    typedef void *DLStreamHandle;
-
-    int DLArrayAlloc(const index_t *shape, index_t ndim, DLContext ctx,
-    DLArrayHandle *out);
-
-    int DLArrayFree(DLArrayHandle handle);
-
-    int DLArrayCopyFromTo(DLArrayHandle from, DLArrayHandle to,    
-    DLStreamHandle stream);
-    ---------------------------------------------------------------------------
-    int DLGpuArraySet(DLArrayHandle arr, float value);
-
-    int DLArrayReshape(const DLArrayHandle handle, const index_t *new_shape, index_t new_dim);
-
-    int DLGpuBroadcastTo(const DLArrayHandle input, DLArrayHandle output);
-
-    int DLGpuReduceSumAxisZero(const DLArrayHandle input, DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseAdd(const DLArrayHandle matA,
-    const DLArrayHandle matB, DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseAddByConst(const DLArrayHandle input, float val,
-    DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseSubtract(const DLArrayHandle matA,
-    const DLArrayHandle matB, DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseSubtractByConst(const DLArrayHandle input, float val,
-    DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseMultiply(
-    const DLArrayHandle matA, const DLArrayHandle matB, DLArrayHandle output);
-
-    int DLGpuMatrixMultiplyByConst(const DLArrayHandle input, float val,
-    DLArrayHandle output);
-
-    int DLGpuMatrixElementwiseDivByConst(const DLArrayHandle matA, float val,    
-    DLArrayHandle output);  
-
-    int DLGpuMatrixMultiply(const DLArrayHandle matA, bool transposeA,    
-    const DLArrayHandle matB, bool transposeB,
-    DLArrayHandle matC);
-
-    int DLGpuRelu(const DLArrayHandle input, DLArrayHandle output);
-
-    int DLGpuReluGradient(const DLArrayHandle input, const DLArrayHandle in_grad,
-    DLArrayHandle output);
-
-    int DLGpuSoftmax(const DLArrayHandle input, DLArrayHandle output);
-
-    int DLGpuSoftmaxCrossEntropy(const DLArrayHandle input_a,
-    const DLArrayHandle input_b,
-    DLArrayHandle output); 
-
-    int DLGpuMatrixElementwiseSqrt(const DLArrayHandle input_a, DLArrayHandle output);
-
-&#125;
-
-#endif
-</code></pre>
-<p>——下面的代码是直接调用GPU封装好的计算函数的，这里是为了暴露给Python而定义的。</p>
-<h2 id="c-runtime-api-cpp源码解析"><a href="#c-runtime-api-cpp源码解析" class="headerlink" title="c_runtime_api.cpp源码解析"></a>c_runtime_api.cpp源码解析</h2><p>首先在dlsys::runtime的命名空间之下，定义一个管理器DeviceAPIManager。源代码如下：</p>
-<pre><code class="lang-Cpp">class DeviceAPIManager &#123;
-
-    public:
-        static const int kMaxDeviceAPI = 8;
-
-        static DeviceAPI *Get(DLContext ctx) &#123;
-            return Global()-&gt;GetAPI(ctx.device_type);
-        &#125;
-
-    private:
-        std::array&lt;DeviceAPI *, kMaxDeviceAPI&gt; api_;
-
-        DeviceAPIManager() &#123;
-            std::fill(api_.begin(), api_.end(), nullptr);
-            static CPUDeviceAPI cpu_device_api_inst;    
-            static CUDADeviceAPI gpu_device_api_inst;
-            api_[kCPU] = static_cast&lt;DeviceAPI *&gt;(&amp;cpu_device_api_inst);
-            api_[kGPU] = static_cast&lt;DeviceAPI *&gt;(&amp;gpu_device_api_inst);
-
-        &#125;
-        // Get global static variable.
-        static DeviceAPIManager *Global() &#123;
-            static DeviceAPIManager inst;
-            return &amp;inst;
-        &#125;
-        // Get API.
-        DeviceAPI *GetAPI(DLDeviceType type) &#123;        
-            if (api_[type] == nullptr) &#123;
-                std::cerr &lt;&lt; &quot;Device API not supported&quot; &lt;&lt; std::endl;
-                exit(EXIT_FAILURE);
-        &#125;        
-        return api_[type];
-    &#125;
-&#125;;
-</code></pre>
-<p>kMaxDeviceAPI定义的是最大的设备数量。<br>在private中，首先声明一个数组容器，用来存放类型为DeviceAPI的kMax个变量。我们知道DeviceAPI是对运算设备行为的抽象，因此这里的意思就是为了统一管理运算设备，建立了有kMax个凹槽的容器。</p>
+<h2 id="c-runtime-api-h-文件源码">c_runtime_api.h 文件源码</h2>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs Cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> DLSYS_RUNTIME_C_RUNTIME_API_H_</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DLSYS_RUNTIME_C_RUNTIME_API_H_</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> __cplusplus</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DLSYS_EXTERN_C extern <span class="hljs-string">&quot;C&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">else</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> DLSYS_EXTERN_C</span><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;dlarray.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stddef.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdint.h&gt;</span></span><br><br>DLSYS_EXTERN_C &#123;<br><br>	<span class="hljs-keyword">typedef</span> <span class="hljs-type">int64_t</span> <span class="hljs-type">index_t</span>;<br>	<span class="hljs-keyword">typedef</span> DLArray *DLArrayHandle;<br>	<span class="hljs-keyword">typedef</span> <span class="hljs-type">void</span> *DLStreamHandle;<br><br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayAlloc</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">index_t</span> *shape, <span class="hljs-type">index_t</span> ndim, DLContext ctx,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle *out)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayFree</span><span class="hljs-params">(DLArrayHandle handle)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayCopyFromTo</span><span class="hljs-params">(DLArrayHandle from, DLArrayHandle to,	</span></span><br><span class="hljs-params"><span class="hljs-function">	DLStreamHandle stream)</span></span>;<br>	---------------------------------------------------------------------------<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuArraySet</span><span class="hljs-params">(DLArrayHandle arr, <span class="hljs-type">float</span> value)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayReshape</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle handle, <span class="hljs-type">const</span> <span class="hljs-type">index_t</span> *new_shape, <span class="hljs-type">index_t</span> new_dim)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuBroadcastTo</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuReduceSumAxisZero</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseAdd</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle matA,</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-type">const</span> DLArrayHandle matB, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseAddByConst</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, <span class="hljs-type">float</span> val,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseSubtract</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle matA,</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-type">const</span> DLArrayHandle matB, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseSubtractByConst</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, <span class="hljs-type">float</span> val,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseMultiply</span><span class="hljs-params">(</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-type">const</span> DLArrayHandle matA, <span class="hljs-type">const</span> DLArrayHandle matB, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixMultiplyByConst</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, <span class="hljs-type">float</span> val,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseDivByConst</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle matA, <span class="hljs-type">float</span> val,	</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>;  <br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixMultiply</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle matA, <span class="hljs-type">bool</span> transposeA,	</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-type">const</span> DLArrayHandle matB, <span class="hljs-type">bool</span> transposeB,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle matC)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuRelu</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuReluGradient</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, <span class="hljs-type">const</span> DLArrayHandle in_grad,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuSoftmax</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input, DLArrayHandle output)</span></span>;<br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuSoftmaxCrossEntropy</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input_a,</span></span><br><span class="hljs-params"><span class="hljs-function">	<span class="hljs-type">const</span> DLArrayHandle input_b,</span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle output)</span></span>; <br>	<br>	<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLGpuMatrixElementwiseSqrt</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle input_a, DLArrayHandle output)</span></span>;<br><br>&#125;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+<p>----下面的代码是直接调用GPU封装好的计算函数的，这里是为了暴露给Python而定义的。</p>
+<h2 id="c-runtime-api-cpp源码解析">c_runtime_api.cpp源码解析</h2>
+<p>首先在dlsys::runtime的命名空间之下，定义一个管理器DeviceAPIManager。源代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs Cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DeviceAPIManager</span> &#123;<br><br>	<span class="hljs-keyword">public</span>:<br>		<span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> kMaxDeviceAPI = <span class="hljs-number">8</span>;<br>		<br>		<span class="hljs-function"><span class="hljs-type">static</span> DeviceAPI *<span class="hljs-title">Get</span><span class="hljs-params">(DLContext ctx)</span> </span>&#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-built_in">Global</span>()-&gt;<span class="hljs-built_in">GetAPI</span>(ctx.device_type);<br>		&#125;<br>	<br>	<span class="hljs-keyword">private</span>:<br>		std::array&lt;DeviceAPI *, kMaxDeviceAPI&gt; api_;<br>		<br>		<span class="hljs-built_in">DeviceAPIManager</span>() &#123;<br>			std::<span class="hljs-built_in">fill</span>(api_.<span class="hljs-built_in">begin</span>(), api_.<span class="hljs-built_in">end</span>(), <span class="hljs-literal">nullptr</span>);<br>			<span class="hljs-type">static</span> CPUDeviceAPI cpu_device_api_inst;	<br>			<span class="hljs-type">static</span> CUDADeviceAPI gpu_device_api_inst;<br>			api_[kCPU] = <span class="hljs-built_in">static_cast</span>&lt;DeviceAPI *&gt;(&amp;cpu_device_api_inst);<br>			api_[kGPU] = <span class="hljs-built_in">static_cast</span>&lt;DeviceAPI *&gt;(&amp;gpu_device_api_inst);<br>			<br>		&#125;<br>		<span class="hljs-comment">// Get global static variable.</span><br>		<span class="hljs-function"><span class="hljs-type">static</span> DeviceAPIManager *<span class="hljs-title">Global</span><span class="hljs-params">()</span> </span>&#123;<br>			<span class="hljs-type">static</span> DeviceAPIManager inst;<br>			<span class="hljs-keyword">return</span> &amp;inst;<br>		&#125;<br>		<span class="hljs-comment">// Get API.</span><br>		<span class="hljs-function">DeviceAPI *<span class="hljs-title">GetAPI</span><span class="hljs-params">(DLDeviceType type)</span> </span>&#123;		<br>			<span class="hljs-keyword">if</span> (api_[type] == <span class="hljs-literal">nullptr</span>) &#123;<br>				std::cerr &lt;&lt; <span class="hljs-string">&quot;Device API not supported&quot;</span> &lt;&lt; std::endl;<br>				<span class="hljs-built_in">exit</span>(EXIT_FAILURE);<br>		&#125;		<br>		<span class="hljs-keyword">return</span> api_[type];<br>	&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>kMaxDeviceAPI定义的是最大的设备数量。<br>
+在private中，首先声明一个数组容器，用来存放类型为DeviceAPI的kMax个变量。我们知道DeviceAPI是对运算设备行为的抽象，因此这里的意思就是为了统一管理运算设备，建立了有kMax个凹槽的容器。</p>
 <p>private中，DeviceAPIManager是构造函数，首先用空指针填充api_容器，这是对数据的初始化。进一步创建了CPU和GPU两个设备的实例化对象。由于这两个所属的类是子类，为了符合api的统一管理需求，同时为了不丧失子类的特性，这里采用<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36614557/article/details/119283085?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_utm_term~default-0-119283085-blog-80609369.pc_relevant_default&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">子类向父类的转换</a>。</p>
 <p>private中，Global函数是创建了一个DeviceAPIManager，即创建了一个管理器，返回管理器的地址。这个管理器是static的，所以在一个程序周期内仅仅拥有这一个管理器。</p>
 <p>public中，Get函数的输入是DLContext，详情见[[GPU运算数据结构]]（DLContext里面包含了device_type变量，用于表示现在是用哪个设备进行运算）。先调用Global获取管理器，管理器的一个成员函数是GetAPI。</p>
 <p>private中，GetAPI用于从初始化好的api_容器里找到对应的设备管理器的指针，并返回。这个设备管理器具有[[设备管理]]CPU和GPU的对应的方法。可以通过‘-&gt;’进行调用。</p>
-<pre><code class="lang-Cpp">inline DLArray *DLArrayCreate_() &#123;
-
-    DLArray *arr = new DLArray();
-
-    arr-&gt;shape = nullptr;
-
-    arr-&gt;ndim = 0;
-
-    arr-&gt;data = nullptr;
-
-    return arr;
-
-&#125;
-
-
-
-inline void DLArrayFree_(DLArray *arr) &#123;
-
-    if (arr != nullptr) &#123;
-
-        // ok to delete nullptr
-
-        delete[] arr-&gt;shape;
-
-        if (arr-&gt;data != nullptr) &#123;
-
-            DeviceAPIManager::Get(arr-&gt;ctx)-&gt;FreeDataSpace(arr-&gt;ctx, arr-&gt;data);
-
-        &#125;
-
-    &#125;
-
-    delete arr;
-
-&#125;
-
-
-
-inline size_t GetDataSize(DLArray *arr) &#123;
-
-    size_t size = 1;
-
-    for (index_t i = 0; i &lt; arr-&gt;ndim; ++i) &#123;
-
-        size *= arr-&gt;shape[i];
-
-    &#125;
-
-    // assume 32-bit float
-
-    size *= 4;
-
-    return size;
-
-&#125;
-
-
-
-inline size_t GetDataAlignment(DLArray *arr) &#123;
-
-// assume 32-bit float
-
-    return 8;
-
-&#125;
-</code></pre>
-<p>四个inline内联函数定义在dlsys::runtime下。<br>DLArrayCreate_实现数组的创建和初始化。<br>DLArrayFree_实现数组的释放。<br>GetDataSize用于计算数组的总数量，比如(3,256,256)shape的数据，会计算size是3<br>x256x256。当然这只是数据的数量，代码中假设数据是32bit的float，由于size表示的是字节数的意思，所以算出来的size要乘4。<br>GetDataAlignment（待完成）。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs Cpp"><span class="hljs-function"><span class="hljs-keyword">inline</span> DLArray *<span class="hljs-title">DLArrayCreate_</span><span class="hljs-params">()</span> </span>&#123;<br><br>	DLArray *arr = <span class="hljs-keyword">new</span> <span class="hljs-built_in">DLArray</span>();<br>	<br>	arr-&gt;shape = <span class="hljs-literal">nullptr</span>;<br>	<br>	arr-&gt;ndim = <span class="hljs-number">0</span>;<br>	<br>	arr-&gt;data = <span class="hljs-literal">nullptr</span>;<br>	<br>	<span class="hljs-keyword">return</span> arr;<br><br>&#125;<br><br>  <br><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">DLArrayFree_</span><span class="hljs-params">(DLArray *arr)</span> </span>&#123;<br><br>	<span class="hljs-keyword">if</span> (arr != <span class="hljs-literal">nullptr</span>) &#123;<br>	<br>		<span class="hljs-comment">// ok to delete nullptr</span><br>		<br>		<span class="hljs-keyword">delete</span>[] arr-&gt;shape;<br>		<br>		<span class="hljs-keyword">if</span> (arr-&gt;data != <span class="hljs-literal">nullptr</span>) &#123;<br>		<br>			DeviceAPIManager::<span class="hljs-built_in">Get</span>(arr-&gt;ctx)-&gt;<span class="hljs-built_in">FreeDataSpace</span>(arr-&gt;ctx, arr-&gt;data);<br>		<br>		&#125;<br>	<br>	&#125;<br>	<br>	<span class="hljs-keyword">delete</span> arr;<br><br>&#125;<br><br>  <br><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">size_t</span> <span class="hljs-title">GetDataSize</span><span class="hljs-params">(DLArray *arr)</span> </span>&#123;<br><br>	<span class="hljs-type">size_t</span> size = <span class="hljs-number">1</span>;<br>	<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">index_t</span> i = <span class="hljs-number">0</span>; i &lt; arr-&gt;ndim; ++i) &#123;<br>	<br>		size *= arr-&gt;shape[i];<br>	<br>	&#125;<br>	<br>	<span class="hljs-comment">// assume 32-bit float</span><br>	<br>	size *= <span class="hljs-number">4</span>;<br>	<br>	<span class="hljs-keyword">return</span> size;<br><br>&#125;<br><br>  <br><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">size_t</span> <span class="hljs-title">GetDataAlignment</span><span class="hljs-params">(DLArray *arr)</span> </span>&#123;<br><br><span class="hljs-comment">// assume 32-bit float</span><br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">8</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>四个inline内联函数定义在dlsys::runtime下。<br>
+DLArrayCreate_实现数组的创建和初始化。<br>
+DLArrayFree_实现数组的释放。<br>
+GetDataSize用于计算数组的总数量，比如(3,256,256)shape的数据，会计算size是3<br>
+x256x256。当然这只是数据的数量，代码中假设数据是32bit的float，由于size表示的是字节数的意思，所以算出来的size要乘4。<br>
+GetDataAlignment（待完成）。</p>
 <p>接下来是封装函数，暴露接口给Python的工作。</p>
-<pre><code class="lang-Cpp">using namespace dlsys::runtime;
-
-
-
-int DLArrayAlloc(const index_t *shape, index_t ndim, DLContext ctx,
-
-    DLArrayHandle *out) &#123;
-
-    DLArray *arr = nullptr;
-    API_BEGIN() ;
-    // shape
-    arr = DLArrayCreate_();
-    // ndim
-    arr-&gt;ndim = ndim;
-    index_t *shape_copy = new index_t[ndim];
-    std::copy(shape, shape + ndim, shape_copy);
-    arr-&gt;shape = shape_copy;
-    // ctx
-    arr-&gt;ctx = ctx;
-    size_t size = GetDataSize(arr);
-    size_t alignment = GetDataAlignment(arr);
-    arr-&gt;data = DeviceAPIManager::Get(ctx)-&gt;AllocDataSpace(ctx, size, alignment);
-    *out = arr;
-    API_END_HANDLE_ERROR(DLArrayFree_(arr));
-
-&#125;
-</code></pre>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs Cpp"><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> dlsys::runtime;<br><br>  <br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayAlloc</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">index_t</span> *shape, <span class="hljs-type">index_t</span> ndim, DLContext ctx,</span></span><br><span class="hljs-params"><span class="hljs-function"></span></span><br><span class="hljs-params"><span class="hljs-function">	DLArrayHandle *out)</span> </span>&#123;<br>	<br>	DLArray *arr = <span class="hljs-literal">nullptr</span>;<br>	<span class="hljs-built_in">API_BEGIN</span>() ;<br>	<span class="hljs-comment">// shape</span><br>	arr = <span class="hljs-built_in">DLArrayCreate_</span>();<br>	<span class="hljs-comment">// ndim</span><br>	arr-&gt;ndim = ndim;<br>	<span class="hljs-type">index_t</span> *shape_copy = <span class="hljs-keyword">new</span> <span class="hljs-type">index_t</span>[ndim];<br>	std::<span class="hljs-built_in">copy</span>(shape, shape + ndim, shape_copy);<br>	arr-&gt;shape = shape_copy;<br>	<span class="hljs-comment">// ctx</span><br>	arr-&gt;ctx = ctx;<br>	<span class="hljs-type">size_t</span> size = <span class="hljs-built_in">GetDataSize</span>(arr);<br>	<span class="hljs-type">size_t</span> alignment = <span class="hljs-built_in">GetDataAlignment</span>(arr);<br>	arr-&gt;data = DeviceAPIManager::<span class="hljs-built_in">Get</span>(ctx)-&gt;<span class="hljs-built_in">AllocDataSpace</span>(ctx, size, alignment);<br>	*out = arr;<br>	<span class="hljs-built_in">API_END_HANDLE_ERROR</span>(<span class="hljs-built_in">DLArrayFree_</span>(arr));<br><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>上述代码实现了DLArray的创建和初始化。</p>
-<pre><code class="lang-Cpp">int DLArrayFree(DLArrayHandle handle) &#123;
-
-    API_BEGIN() ;
-
-    DLArray *arr = handle;
-
-    DLArrayFree_(arr);
-
-    API_END();
-
-&#125;
-
-
-
-int DLArrayReshape(const DLArrayHandle handle, const index_t *new_shape, index_t new_dim) &#123;
-
-    API_BEGIN() ;
-
-    DLArray *arr = handle;
-
-    index_t *shape_copy = new index_t[new_dim];
-
-    std::copy(new_shape, new_shape + new_dim, shape_copy);
-
-    arr-&gt;shape = shape_copy;
-
-    arr-&gt;ndim = new_dim;
-
-    API_END();
-
-&#125;
-
-
-
-int DLArrayCopyFromTo(DLArrayHandle from, DLArrayHandle to,
-
-DLStreamHandle stream) &#123;
-
-    API_BEGIN() ;
-
-    size_t from_size = GetDataSize(from);
-
-    size_t to_size = GetDataSize(to);
-
-    // The size must exactly match
-
-    assert(from_size == to_size);
-
-    DLContext ctx = from-&gt;ctx;
-
-    if (ctx.device_type == kCPU) &#123;
-
-        ctx = to-&gt;ctx;
-
-    &#125; 
-    else &#123;
-
-        // Can not copy across different ctx types directly
-
-        assert((to-&gt;ctx.device_type == kCPU) ||
-
-        (to-&gt;ctx.device_type == from-&gt;ctx.device_type));
-
-    &#125;
-
-    DeviceAPIManager::Get(ctx)-&gt;CopyDataFromTo(from-&gt;data, to-&gt;data, from_size,
-
-    from-&gt;ctx, to-&gt;ctx, stream);
-
-    API_END();
-
-&#125;
-</code></pre>
-<p>DLArrayFree用于释放内存。<br>DLArrayReshape用于改变数组的shape。<br>DLArrayFromTo用于实现数据的搬运。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs Cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayFree</span><span class="hljs-params">(DLArrayHandle handle)</span> </span>&#123;<br><br>	<span class="hljs-built_in">API_BEGIN</span>() ;<br>	<br>	DLArray *arr = handle;<br>	<br>	<span class="hljs-built_in">DLArrayFree_</span>(arr);<br>	<br>	<span class="hljs-built_in">API_END</span>();<br><br>&#125;<br><br>  <br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayReshape</span><span class="hljs-params">(<span class="hljs-type">const</span> DLArrayHandle handle, <span class="hljs-type">const</span> <span class="hljs-type">index_t</span> *new_shape, <span class="hljs-type">index_t</span> new_dim)</span> </span>&#123;<br><br>	<span class="hljs-built_in">API_BEGIN</span>() ;<br>	<br>	DLArray *arr = handle;<br>	<br>	<span class="hljs-type">index_t</span> *shape_copy = <span class="hljs-keyword">new</span> <span class="hljs-type">index_t</span>[new_dim];<br>	<br>	std::<span class="hljs-built_in">copy</span>(new_shape, new_shape + new_dim, shape_copy);<br>	<br>	arr-&gt;shape = shape_copy;<br>	<br>	arr-&gt;ndim = new_dim;<br>	<br>	<span class="hljs-built_in">API_END</span>();<br><br>&#125;<br><br>  <br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">DLArrayCopyFromTo</span><span class="hljs-params">(DLArrayHandle from, DLArrayHandle to,</span></span><br><span class="hljs-params"><span class="hljs-function"></span></span><br><span class="hljs-params"><span class="hljs-function">DLStreamHandle stream)</span> </span>&#123;<br>	<br>	<span class="hljs-built_in">API_BEGIN</span>() ;<br>	<br>	<span class="hljs-type">size_t</span> from_size = <span class="hljs-built_in">GetDataSize</span>(from);<br>	<br>	<span class="hljs-type">size_t</span> to_size = <span class="hljs-built_in">GetDataSize</span>(to);<br>	<br>	<span class="hljs-comment">// The size must exactly match</span><br>	<br>	<span class="hljs-built_in">assert</span>(from_size == to_size);<br>	<br>	DLContext ctx = from-&gt;ctx;<br>	<br>	<span class="hljs-keyword">if</span> (ctx.device_type == kCPU) &#123;<br>	<br>		ctx = to-&gt;ctx;<br>	<br>	&#125; <br>	<span class="hljs-keyword">else</span> &#123;<br>	<br>		<span class="hljs-comment">// Can not copy across different ctx types directly</span><br>		<br>		<span class="hljs-built_in">assert</span>((to-&gt;ctx.device_type == kCPU) ||<br>		<br>		(to-&gt;ctx.device_type == from-&gt;ctx.device_type));<br>	<br>	&#125;<br>	<br>	DeviceAPIManager::<span class="hljs-built_in">Get</span>(ctx)-&gt;<span class="hljs-built_in">CopyDataFromTo</span>(from-&gt;data, to-&gt;data, from_size,<br>	<br>	from-&gt;ctx, to-&gt;ctx, stream);<br>	<br>	<span class="hljs-built_in">API_END</span>();<br><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>DLArrayFree用于释放内存。<br>
+DLArrayReshape用于改变数组的shape。<br>
+DLArrayFromTo用于实现数据的搬运。</p>
 
   </div>
   <div id=""></div>
