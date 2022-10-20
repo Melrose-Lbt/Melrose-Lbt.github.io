@@ -506,7 +506,7 @@ inline size_t GetDataAlignment(DLArray *arr) &#123;
 
 &#125;
 </code></pre>
-<p>四个inline内联函数定义在dlsys::runtime下。<br>DLArrayCreate_实现数组的创建和初始化。<br>DLArrayFree_实现数组的释放。<br>GetDataSize用于计算数组的总数量，比如(3,256,256)shape的数据，会计算size是3<br>x256x256。当然这只是数据的数量，代码中假设数据是32bit的float，由于size表示的是字节数的意思，所以算出来的size要乘4。<br>GetDataAlignment（待完成）。</p>
+<p>四个inline内联函数定义在dlsys::runtime下。<br>DLArrayCreate<em>实现数组的创建和初始化。<br>DLArrayFree</em>实现数组的释放。<br>GetDataSize用于计算数组的总数量，比如(3,256,256)shape的数据，会计算size是3<br>x256x256。当然这只是数据的数量，代码中假设数据是32bit的float，由于size表示的是字节数的意思，所以算出来的size要乘4。<br>GetDataAlignment（待完成）。</p>
 <p>接下来是封装函数，暴露接口给Python的工作。</p>
 <pre><code class="lang-Cpp">using namespace dlsys::runtime;
 
