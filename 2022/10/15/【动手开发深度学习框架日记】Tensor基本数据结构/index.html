@@ -321,32 +321,29 @@
     
 
     <blockquote>
-<p>我的专业是智能科学与技术专业，硬件软件方面的知识都有涉及一些。深度学习技术在我学习生涯中占比例是很大的。虽然学习过一些机器学习、神经网络等一些理论基础，但是用别人成熟的框架总感觉缺失点东西。以学习出发为目的，我花了一两个月时间使用Numpy+Python写了第一个自己的深度学习框架MetaFlow，实现了Tensor、反向传播、自动微分算子、Dataset、DataLoader等模块，使用起来类似于Pytorch，但是由于学习种种原因就被搁置了，仅仅实现了全连接神经网络的封装。同时MetaFlow还有一个缺点就是没有使用GPU加速。CUDA程序设计也是我比较期待学习的。所以产生了写一个基于CUDA/C为后端，Python为前端的简单的深度学习框架。这次的目标主要是实现全连接以及卷积操作，并提供类似于Pytorch的接口，同时支持batch训练、模型保存等等功能。<br>
+<p>我的专业是智能科学与技术专业，硬件软件方面的知识都有涉及一些。深度学习技术在我学习生涯中占比例是很大的。虽然学习过一些机器学习、神经网络等一些理论基础，但是用别人成熟的框架总感觉缺失点东西。以学习出发为目的，我花了一两个月时间使用Numpy+Python写了第一个自己的深度学习框架MetaFlow，实现了Tensor、反向传播、自动微分算子、Dataset、DataLoader等模块，使用起来类似于Pytorch，但是由于学习种种原因就被搁置了，仅仅实现了全连接神经网络的封装。同时MetaFlow还有一个缺点就是没有使用GPU加速。CUDA程序设计也是我比较期待学习的。所以产生了写一个基于CUDA/C为后端，Python为前端的简单的深度学习框架。这次的目标主要是实现全连接以及卷积操作，并提供类似于Pytorch的接口，同时支持batch训练、模型保存等等功能。
 这个系列的博客用于个人学习记录，同时把一些实现的方法分享出来，也算是项目的参考文档。</p>
 </blockquote>
-<h1>一、数据结构的定义</h1>
-<p><strong>张量</strong>（<strong>Tensor</strong>）是在任何深度学习框架中最为重要的一个数据结构。该数据结构需要实现以下几个功能：</p>
-<blockquote>
-<ul>
-<li><strong>支持高维度矩阵的运算</strong></li>
-<li><strong>允许记录梯度值，且可以设置是否需要求梯度</strong></li>
-<li><strong>作为计算图中的结点可以记录父节点和子节点</strong></li>
-<li><strong>可以记录得到该结点时运用了哪些算子</strong></li>
-<li><strong>能够做到数据从CPU（host）到GPU（device）的转换和创建</strong></li>
-<li><strong>支持反向传播算法</strong></li>
-</ul>
-</blockquote>
+<h1 id="一数据结构的定义">一、数据结构的定义</h1>
+<p><strong>张量</strong>（<strong>Tensor</strong>）是在任何深度学习框架中最为重要的一个数据结构。该数据结构需要实现以下几个功能：
+&gt;- <strong>支持高维度矩阵的运算</strong> &gt;-
+<strong>允许记录梯度值，且可以设置是否需要求梯度</strong> &gt;-
+<strong>作为计算图中的结点可以记录父节点和子节点</strong> &gt;-
+<strong>可以记录得到该结点时运用了哪些算子</strong> &gt;-
+<strong>能够做到数据从CPU（host）到GPU（device）的转换和创建</strong>
+&gt;- <strong>支持反向传播算法</strong></p>
 <p>这里需要关注的就是CPU到GPU数据的转换和格式如何去定义。</p>
-<h4 id="1-1-CPU数据结构和GPU数据结构">1.1 CPU数据结构和GPU数据结构</h4>
+<h4 id="cpu数据结构和gpu数据结构">1.1 CPU数据结构和GPU数据结构</h4>
 <p>我采取了两种基本数据类型，分别时Numpy数组（CPU端计算）以及Quark（GPU端计算），Tensor在这里的作用更像是管理者和资源记录分配者，而真正需要进行数据运算的是上面二位基本数据结构支持的。Quark也叫夸克（项目名称是Neutron，中文是中子的意思，为了战术上的统一就给后端的数据结构起了名字叫夸克），是定义在后端的结构体。具体实现的代码如下：</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span>&#123;<br>    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span>&#123;<br>        CPU = <span class="hljs-number">0</span>,<br>        GPU = <span class="hljs-number">1</span><br>    &#125;Device;<br><br>    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span>&#123;<br>        <span class="hljs-type">float</span>* data;<br>        Device device;<br>        <span class="hljs-type">int</span>* shape;<br>        <span class="hljs-type">int</span> dim;<br>    &#125;Quark;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>代码定义在 <em>array.h</em> 头文件当中，其中包含float型数据指针；enum类型Device判断是使用CPU计算数据还是GPU；同样是数组指针shape，用于记录张量形状；以及dim记录张量维数。这些是在CUDA程序中十分重要的几个参数。</p>
+<p>代码定义在 <em>array.h</em>
+头文件当中，其中包含float型数据指针；enum类型Device判断是使用CPU计算数据还是GPU；同样是数组指针shape，用于记录张量形状；以及dim记录张量维数。这些是在CUDA程序中十分重要的几个参数。</p>
 <p>为了能够使C/C++的API供Python调用，使用了Python内置的ctypes库。那么在Python端，将CUDA/C++编译好的动态链接库文件导入，就可以使用后端的数据结构和API了。关于混合编程以及接口调用的问题，会在另一个文章里记录说明（<strong>未更新</strong>）。</p>
 <p>总之，Quark结构体映射至Python代码中的实现如下：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Quark</span>(ctypes.Structure):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        C++ back-end data structure. Contains data pointer (numpy data type has to</span><br><span class="hljs-string">        be float32, otherwise it&#x27;ll raise calculate error), device, data shape poin</span><br><span class="hljs-string">        ter and dimension.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    _fields_ = [(<span class="hljs-string">&#x27;data&#x27;</span>, ctypes.POINTER(c_float)),<br>                (<span class="hljs-string">&#x27;device&#x27;</span>, ctypes.c_int),<br>                (<span class="hljs-string">&#x27;shape&#x27;</span>, ctypes.POINTER(ctypes.c_int)),<br>                (<span class="hljs-string">&#x27;dim&#x27;</span>, ctypes.c_int)]<br></code></pre></td></tr></table></figure>
-<p>关于使用CPU计算的数据就很简单了，np.array()就完事儿，什么shape，dim都能获取到。</p>
-<h4 id="1-2-Tensor定义">1.2 Tensor定义</h4>
-<p>之前提到过，Tensor在框架中的角色其实并不是计算，而是充当一个资源调度和管理的角色。那么它就要能集两家之数据（CPU和GPU），无缝的、信息不丢失的衔接切换。同时还要实现什么梯度记录呀、父子结点记录呀、反向传播算法等等功能。当然要实现数据到GPU还是需要一些CUDA代码的，本篇日记仅仅记录实现逻辑，背后的CUDA代码会在另一个记录中说明（<strong>未更新</strong>）。</p>
+<p>关于使用CPU计算的数据就很简单了，np.array()就完事儿，什么shape，dim都能获取到。
+#### 1.2 Tensor定义
+之前提到过，Tensor在框架中的角色其实并不是计算，而是充当一个资源调度和管理的角色。那么它就要能集两家之数据（CPU和GPU），无缝的、信息不丢失的衔接切换。同时还要实现什么梯度记录呀、父子结点记录呀、反向传播算法等等功能。当然要实现数据到GPU还是需要一些CUDA代码的，本篇日记仅仅记录实现逻辑，背后的CUDA代码会在另一个记录中说明（<strong>未更新</strong>）。</p>
 <p>首先定义一个类，Tensor类，类中的属性就可以按照我们的需求来</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Tensor</span>:<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        Python fore-end data structure.</span><br><span class="hljs-string">        The most important attr is handle. Handle is a pointer to the real data str</span><br><span class="hljs-string">        -ucture. It manages GPU data structure (Quark) and CPU data structure (numpy).</span><br><span class="hljs-string">        </span><br><span class="hljs-string">        When you instantiate the Tensor, you need to give parameters as follows:</span><br><span class="hljs-string">        1. data: numpy array, dtype is np.float32.</span><br><span class="hljs-string">        2. device: on cpu or on gpu.</span><br><span class="hljs-string">        3. require_grad: require calculate gradient or not.</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, data, device=CPU, require_grad=<span class="hljs-literal">False</span></span>):<br>        self.children = []<br>        self.father = []<br>        self.op = <span class="hljs-literal">None</span><br>        self.grad = <span class="hljs-literal">None</span><br>        self.device = device<br>        self.require_grad = require_grad<br>        self.handle = self.configureHandle(self, data, device)<br></code></pre></td></tr></table></figure>
 <p>里面包括父子结点列表、op算子、梯度、设备（CPU/GPU）、求梯度标志位、数据结构句柄。这个handle的作用就是根据device属性来判别需要创建什么句柄。</p>
@@ -359,13 +356,15 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># transfer the data from the gpu to the cpu</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">cpu</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">if</span> self.device == GPU:<br>        size = CUDALib.getSize(self.handle.dim, self.handle.shape)<br>        host_ptr = CUDALib.AllocateHostData(size)<br>        CUDALib.CopyDataFromTo(self.handle.data, host_ptr, GPU, CPU, size)<br>        self.handle.data = host_ptr<br>    <span class="hljs-keyword">return</span> self<br><br><span class="hljs-comment"># transfer the data from the cpu to the gpu</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">gpu</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">if</span> self.device == CPU <span class="hljs-keyword">and</span> <span class="hljs-built_in">isinstance</span>(self.handle, ndarray):<br>        self.handle = self.getQuarkHandle(self.handle)<br>        self.device = GPU<br>    <span class="hljs-keyword">return</span> self<br></code></pre></td></tr></table></figure>
 <p><code>gpu()</code>实现的逻辑就调用了<code>getQuarkHandle()</code>创建一个GPU的Quark。<code>cpu()</code>则需要利用CUDA的API将GPU显存数据移动到CPU上。</p>
 <p>对于反向传播方法和剩余的方法将分布在其他文章中解释（<strong>未更新</strong>）。</p>
-<h1>二、使用例程</h1>
-<p>使用Tensor，可以预先创建numpy数组，前提 <strong>必须</strong> 数据是 <strong>np.float32</strong> 类型。这是因为在后端定义Quark是float类型，如果采用其他数据类型GPU运算出的数据会千奇百怪（如果忘记也没有关系，代码中会自动将类型变为float32）。<br>
+<h1 id="二使用例程">二、使用例程</h1>
+<p>使用Tensor，可以预先创建numpy数组，前提 <strong>必须</strong> 数据是
+<strong>np.float32</strong>
+类型。这是因为在后端定义Quark是float类型，如果采用其他数据类型GPU运算出的数据会千奇百怪（如果忘记也没有关系，代码中会自动将类型变为float32）。
 首先，可以使用numpy创建任意维度的数组，然后通过Tensor进一步封装。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python">x = np.ones((<span class="hljs-number">64</span>, <span class="hljs-number">64</span>))<br>xt = Tensor(x, CPU, require_grad=<span class="hljs-literal">False</span>)<br><span class="hljs-built_in">print</span>(xt)<br><br><span class="hljs-comment"># console results</span><br>Tensor([[<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]<br> [<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]       <br> [<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]       <br> ...<br> [<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]<br> [<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]<br> [<span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> ... <span class="hljs-number">1.</span> <span class="hljs-number">1.</span> <span class="hljs-number">1.</span>]], shape=(<span class="hljs-number">64</span>, <span class="hljs-number">64</span>), dtype=Tensor.float32)<br></code></pre></td></tr></table></figure>
 <p>我们可以通过调用<code>cpu()</code>和<code>gpu()</code>转移Tensor。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python">xt.cpu()<br>xt.gpu()<br></code></pre></td></tr></table></figure>
-<p>值得注意的是，若想要打印数据，必须调用<code>cpu()</code>把数据移动到CPU来。<br>
+<p>值得注意的是，若想要打印数据，必须调用<code>cpu()</code>把数据移动到CPU来。
 也可以通过输入元组数据，Tensor会自动创建基于正态分布的随机张量。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><code class="hljs python">xt = Tensor((<span class="hljs-number">1</span>, <span class="hljs-number">64</span>, <span class="hljs-number">64</span>), CPU, require_grad=<span class="hljs-literal">False</span>)<br><span class="hljs-built_in">print</span>(xt)<br><br><span class="hljs-comment"># console results</span><br>Tensor([[[<span class="hljs-number">0.43749017</span> <span class="hljs-number">0.29031968</span> <span class="hljs-number">0.8365907</span>  ... <span class="hljs-number">0.61214393</span> <span class="hljs-number">0.44423762</span> <span class="hljs-number">0.03210686</span>]<br>  [<span class="hljs-number">0.6642815</span>  <span class="hljs-number">0.7885864</span>  <span class="hljs-number">0.6017005</span>  ... <span class="hljs-number">0.28682867</span> <span class="hljs-number">0.49431917</span> <span class="hljs-number">0.64389694</span>]<br>  [<span class="hljs-number">0.02547996</span> <span class="hljs-number">0.5165705</span>  <span class="hljs-number">0.711713</span>   ... <span class="hljs-number">0.33360547</span> <span class="hljs-number">0.13552403</span> <span class="hljs-number">0.6047031</span> ]<br>  ...<br>  [<span class="hljs-number">0.5312942</span>  <span class="hljs-number">0.13073258</span> <span class="hljs-number">0.39996797</span> ... <span class="hljs-number">0.3393874</span>  <span class="hljs-number">0.38398758</span> <span class="hljs-number">0.81480604</span>]<br>  [<span class="hljs-number">0.08465459</span> <span class="hljs-number">0.855784</span>   <span class="hljs-number">0.6820476</span>  ... <span class="hljs-number">0.10212806</span> <span class="hljs-number">0.11926474</span> <span class="hljs-number">0.6199378</span> ]<br>  [<span class="hljs-number">0.92551076</span> <span class="hljs-number">0.92917097</span> <span class="hljs-number">0.8674459</span>  ... <span class="hljs-number">0.34977752</span> <span class="hljs-number">0.55820996</span> <span class="hljs-number">0.50206757</span>]]], shape=(<span class="hljs-number">1</span>, <span class="hljs-number">64</span>, <span class="hljs-number">64</span>), dtype=Tensor.float32)<br></code></pre></td></tr></table></figure>
 <p>以上就是目前数据结构的全部内容啦，当然会随着开发的完善逐步更新这个博客。感谢阅读！</p>

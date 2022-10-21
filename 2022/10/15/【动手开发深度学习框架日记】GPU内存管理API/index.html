@@ -321,26 +321,30 @@
     
 
     <blockquote>
-<p>在【Tensor基本数据结构】一文中，Tensor类会将数据分为在CPU端计算还是在GPU端计算。对应的就是numpy或Quark子数据结构。Tensor实现了GPU内存数据到CPU数据、CPU到GPU的迁移，通过调用<code>cpu()</code>和<code>gpu()</code>完成。数据的 Host to Device 以及 Device to Host 行为由CUDA提供，因此可以通过封装CUDA API供Python调用。本文主要解释CUDA的底层实现以及Python端的调用。</p>
+<p>在【Tensor基本数据结构】一文中，Tensor类会将数据分为在CPU端计算还是在GPU端计算。对应的就是numpy或Quark子数据结构。Tensor实现了GPU内存数据到CPU数据、CPU到GPU的迁移，通过调用<code>cpu()</code>和<code>gpu()</code>完成。数据的
+Host to Device 以及 Device to Host 行为由CUDA提供，因此可以通过封装CUDA
+API供Python调用。本文主要解释CUDA的底层实现以及Python端的调用。</p>
 </blockquote>
-<p>@<a href="Content">TOC</a></p>
-<h1>一、CUDA加速计算编程模型</h1>
-<p>若要使用CUDA来对矩阵运算进行GPU加速，就需要遵循一定的编程模型（建议先阅读 CUDA By Example，很好的入门CUDA编程书籍）。</p>
+<p>@<a href="Content">TOC</a> # 一、CUDA加速计算编程模型
+若要使用CUDA来对矩阵运算进行GPU加速，就需要遵循一定的编程模型（建议先阅读
+CUDA By Example，很好的入门CUDA编程书籍）。</p>
 <p>首先我们创建了一个数据结构，数据结构中包含数据、形状、维度等等信息。CUDA计算使用的是GPU（Host）端的数据，那么我们怎么把创建好在CPU的数据放到GPU中呢？CUDA提供了一个简便的API，<code>cudaMemcpy()</code>。该API允许数据从Host复制到Device，同时也允许Device的数据复制到Host，需要传入数据的指针，数据大小还有你的选择（从cpu到gpu还是gpu到cpu）。有了这个工具呢，我们还需要一个可以在GPU内存上申请空间的函数，也就是<code>cudaMalloc()</code>，该函数需要传入数据指针和数据的大小。那么，大小如何得到？这时候我们就需要根据数据结构的shape、dim等参数进行计算。最后一个问题，如何释放GPU内存的空间？使用<code>cudaFree()</code>可以解决这个问题。</p>
 <p>总结来说，想要利用CUDA实现GPU加速计算，要有一下几个步骤：</p>
 <blockquote>
-<p><strong>1. 创建数据，填补相关的数据信息（CPU端）</strong><br>
-<strong>2. 创建GPU数据内存指针</strong><br>
-<strong>3. <code>cudaMalloc()</code>分配GPU内存，需要计算数据的size</strong><br>
-<strong>4. <code>cudaMemcpy()</code>将CPU的数据复制到GPU对应内存</strong><br>
-<strong>5. 实现CUDA kernel函数，传入必要参数计算</strong><br>
-<strong>6. <code>cudaMemcpy()</code>将计算结果从GPU复制回CPU</strong><br>
-<strong>7. 完成计算后释放内存</strong></p>
+<p><strong>1. 创建数据，填补相关的数据信息（CPU端）</strong> <strong>2.
+创建GPU数据内存指针</strong> <strong>3.
+<code>cudaMalloc()</code>分配GPU内存，需要计算数据的size</strong>
+<strong>4.
+<code>cudaMemcpy()</code>将CPU的数据复制到GPU对应内存</strong>
+<strong>5. 实现CUDA kernel函数，传入必要参数计算</strong> <strong>6.
+<code>cudaMemcpy()</code>将计算结果从GPU复制回CPU</strong> <strong>7.
+完成计算后释放内存</strong></p>
 </blockquote>
-<h1>二、内存管理API封装</h1>
+<h1 id="二内存管理api封装">二、内存管理API封装</h1>
 <p>上述的步骤其实是可以直接写在C++后端的算子API里的，但是为了Tensor管理的模块化和灵活性，打算将这些功能分散开，在创建GPU数据时完成对应的操作，之后再调用算子就是直接调用GPU内存进行计算了。</p>
-<p>首先创建一个专门定义内存操作的.cu文件，我把它叫 <a target="_blank" rel="noopener" href="http://MemSchedulor.cu">MemSchedulor.cu</a>。</p>
-<p>为了方便筛查错误，我们需要定义一个宏，每当使用CUDA API时，在外面裹一层就好了。</p>
+<p>首先创建一个专门定义内存操作的.cu文件，我把它叫 MemSchedulor.cu。</p>
+<p>为了方便筛查错误，我们需要定义一个宏，每当使用CUDA
+API时，在外面裹一层就好了。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> CUDA_CHECK(func)                                                        \</span><br><span class="hljs-meta">  &#123;                                                                            \</span><br><span class="hljs-meta">    cudaError_t e = (func);                                                    \</span><br><span class="hljs-meta">    assert((e == cudaSuccess) || (e == cudaErrorCudartUnloading));             \</span><br><span class="hljs-meta">  &#125;</span><br></code></pre></td></tr></table></figure>
 <p>然后我们先封装内存分配函数，这里实现了CPU的封装和GPU的封装。</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-function"><span class="hljs-type">float</span> *<span class="hljs-title">AllocateDeviceData</span><span class="hljs-params">(<span class="hljs-type">int</span> size)</span></span>&#123;<br>	<span class="hljs-type">float</span> *dev_data;<br>	<span class="hljs-built_in">CUDA_CHECK</span>(<span class="hljs-built_in">cudaMalloc</span>((<span class="hljs-type">void</span> **)&amp;dev_data, size));<br>	<span class="hljs-keyword">return</span> dev_data;<br>&#125;<br><br><span class="hljs-keyword">extern</span> <span class="hljs-string">&quot;C&quot;</span> <span class="hljs-function"><span class="hljs-type">float</span> *<span class="hljs-title">AllocateHostData</span><span class="hljs-params">(<span class="hljs-type">int</span> size)</span></span>&#123;<br>	<span class="hljs-type">float</span> *host_data = (<span class="hljs-type">float</span> *)<span class="hljs-built_in">malloc</span>(size);<br>	<span class="hljs-keyword">return</span> host_data;<br>&#125;<br></code></pre></td></tr></table></figure>
